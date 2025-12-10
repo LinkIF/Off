@@ -123,7 +123,7 @@
     .days-row {
       display: flex;
       justify-content: space-between;
-      margin: 14px 0 2px;
+      margin: 14px 0 8px;
     }
     .day-btn {
       width: 40px;
@@ -140,6 +140,56 @@
       font-weight: 600;
     }
 
+    /* Шкала на сутки */
+    .timeline {
+      margin-top: 4px;
+      padding: 10px 12px 8px;
+      border-radius: 16px;
+      background: #111;
+      font-size: 12px;
+    }
+    .timeline-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+    .timeline-title {
+      font-weight: 600;
+      font-size: 13px;
+    }
+    .timeline-bar {
+      display: flex;
+      border-radius: 999px;
+      overflow: hidden;
+      height: 18px;
+      background: #222;
+    }
+    .timeline-segment {
+      flex: 1;
+      background: #333;  /* нет электроэнергии */
+    }
+    .timeline-segment.on {
+      background: #ffb84d; /* есть электроэнергия */
+    }
+    .timeline-segment.now {
+      outline: 2px solid #ffffff;
+      outline-offset: -1px;
+    }
+    .timeline-hours {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 4px;
+      color: #777;
+      font-size: 11px;
+    }
+    .timeline-legend {
+      margin-top: 4px;
+      color: #888;
+      font-size: 11px;
+    }
+
+    /* Список сегментов (как в Світло) */
     .graph-card {
       margin-top: 10px;
       background: #111;
@@ -339,6 +389,17 @@
 
   <div class="days-row" id="daysRow"></div>
 
+  <div class="timeline" id="timelineBlock">
+    <div class="timeline-header-row">
+      <div class="timeline-title" id="timelineTitle"></div>
+    </div>
+    <div class="timeline-bar" id="timelineBar"></div>
+    <div class="timeline-hours">
+      <span>00</span><span>06</span><span>12</span><span>18</span><span>24</span>
+    </div>
+    <div class="timeline-legend" id="timelineLegend"></div>
+  </div>
+
   <div class="graph-card" id="graphCard"></div>
 
   <div class="off-list" id="offList"></div>
@@ -422,10 +483,8 @@
       import_button: 'Импортировать',
       import_error: 'Не удалось найти выбранную очередь в тексте.',
       import_queue_label: 'Очередь',
-      seg_on_icon: '',
-      seg_off_icon: '✖',
-      seg_on_label: '',
-      seg_off_label: '',
+      tl_title: 'Сутки: жёлтым — когда есть электроэнергия',
+      tl_legend: 'Жёлтый — есть электроэнергия, серый — нет электроэнергии',
     },
     uk: {
       place_home_default: 'Дім',
@@ -452,10 +511,8 @@
       import_button: 'Імпортувати',
       import_error: 'Не вдалося знайти обрану чергу в тексті.',
       import_queue_label: 'Черга',
-      seg_on_icon: '',
-      seg_off_icon: '✖',
-      seg_on_label: '',
-      seg_off_label: '',
+      tl_title: 'Доба: жовтим — коли є електроенергія',
+      tl_legend: 'Жовтий — є електроенергія, сірий — немає електроенергії',
     }
   };
 
@@ -530,7 +587,7 @@
 
   PROFILES.forEach(p => profiles[p]=loadProfile(p));
 
-  let currentDayKey = (function(){
+  function getTodayKey(){
     const jsDay = new Date().getDay();
     switch(jsDay){
       case 0: return 'sun';
@@ -541,8 +598,9 @@
       case 5: return 'fri';
       case 6: return 'sat';
     }
-  })();
+  }
 
+  let currentDayKey = getTodayKey();
   let editOpen = localStorage.getItem(EDIT_OPEN_KEY) || '0';
 
   const titlePlaceEl = document.getElementById('titlePlace');
@@ -551,6 +609,10 @@
   const daysRow = document.getElementById('daysRow');
   const graphCard = document.getElementById('graphCard');
   const offListEl = document.getElementById('offList');
+
+  const timelineBar = document.getElementById('timelineBar');
+  const timelineTitle = document.getElementById('timelineTitle');
+  const timelineLegend = document.getElementById('timelineLegend');
 
   const editHeader = document.getElementById('editHeader');
   const editHeaderTitle = document.getElementById('editHeaderTitle');
@@ -607,6 +669,7 @@
     return profiles[profileKey].days[dayKey] || [];
   }
 
+  // строим последовательность on/off сегментов 0–24
   function buildSegments(offSlots){
     const minutesOff=new Array(1440).fill(false);
     offSlots.forEach(([start,end])=>{
@@ -624,15 +687,15 @@
     for(let m=1;m<=1440;m++){
       const state=m<1440?minutesOff[m]:null;
       if(state!==currentState){
-        segments.push({start,startMin:start,endMin:m,type:currentState?'off':'on'});
+        segments.push({startMin:start,endMin:m,type:currentState?'off':'on'});
         start=m;
         currentState=state;
       }
     }
     return segments.map(seg=>{
-      const sTime=minutesToTime(seg.startMin);
-      const eTime=minutesToTime(seg.endMin%1440);
-      return {start:sTime,end:eTime,type:seg.type};
+      const startTime=minutesToTime(seg.startMin);
+      const endTime=minutesToTime(seg.endMin%1440);
+      return {start:startTime,end:endTime,type:seg.type,startMin:seg.startMin,endMin:seg.endMin};
     });
   }
 
@@ -666,6 +729,8 @@
     importQueueLabel.childNodes[0].nodeValue=t('import_queue_label')+': ';
     importBtn.textContent=t('import_button');
     importHintEl.textContent=t('import_hint');
+    timelineTitle.textContent=t('tl_title');
+    timelineLegend.textContent=t('tl_legend');
   }
 
   function renderHeader(){
@@ -681,6 +746,33 @@
     });
   }
 
+  function renderTimeline(){
+    const offSlots=getDaySlots(currentProfile,currentDayKey);
+    const minutesOff=new Array(1440).fill(false);
+    offSlots.forEach(([start,end])=>{
+      let s=parseTimeToMinutes(start), e=parseTimeToMinutes(end);
+      if(e<=s){
+        for(let m=s;m<1440;m++)minutesOff[m]=true;
+        for(let m=0;m<e;m++)minutesOff[m]=true;
+      }else{
+        for(let m=s;m<e;m++)minutesOff[m]=true;
+      }
+    });
+
+    const now=new Date();
+    const nowHour=now.getHours();
+
+    timelineBar.innerHTML='';
+    for(let h=0;h<24;h++){
+      const center=h*60+30;
+      const off=minutesOff[center];
+      const seg=document.createElement('div');
+      seg.className='timeline-segment'+(off?'':' on');
+      if(h===nowHour) seg.className+=' now';
+      timelineBar.appendChild(seg);
+    }
+  }
+
   function renderGraph(){
     const offSlots=getDaySlots(currentProfile,currentDayKey);
     const segments=buildSegments(offSlots);
@@ -693,17 +785,16 @@
       const row=document.createElement('div');
       row.className='graph-row';
 
-      let s=parseTimeToMinutes(seg.start), e=parseTimeToMinutes(seg.end);
+      let s=seg.startMin, e=seg.endMin;
       if(e<=s)e+=1440;
-      const center=((s+e)/2);
-      const nowAdj=nowMinutes< s ? nowMinutes+1440 : nowMinutes;
-      if(nowAdj>=s && nowAdj<=e){
-        row.classList.add('current');
-      }
+      const center=(s+e)/2;
+      let nowAdj=nowMinutes;
+      if(nowAdj< s) nowAdj+=1440;
+      if(nowAdj>=s && nowAdj<=e) row.classList.add('current');
 
       const iconDiv=document.createElement('div');
       iconDiv.className='graph-icon';
-      iconDiv.textContent= seg.type==='off' ? t('seg_off_icon') : t('seg_on_icon');
+      iconDiv.textContent = seg.type==='off' ? '✖' : '';
 
       const timeDiv=document.createElement('div');
       timeDiv.className='graph-time '+(seg.type==='off'?'off':'on');
@@ -745,6 +836,7 @@
     renderLangTexts();
     renderHeader();
     renderDays();
+    renderTimeline();
     renderGraph();
     renderEditorFields();
     applyEditCollapse();
@@ -809,6 +901,7 @@
     }
     profiles[currentProfile].days[currentDayKey]=slots;
     saveProfile(currentProfile);
+    renderTimeline();
     renderGraph();
     renderEditorFields();
   });
@@ -881,6 +974,7 @@
   });
 
   renderAll();
+  setInterval(()=>{renderTimeline();},60000);
 </script>
 </body>
 </html>
