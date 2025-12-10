@@ -551,6 +551,48 @@
     return { slots: defaultDaySlots.slice(), updatedAt: null };
   }
 
+  const legacyDefaultSlots = [
+    ['00:00','01:00'],
+    ['08:00','15:00'],
+    ['18:30','22:00'],
+  ];
+
+  function isLegacyDefaultSlots(slots) {
+    if (!Array.isArray(slots) || slots.length !== 3) return false;
+    const p = legacyDefaultSlots;
+    for (let i = 0; i < 3; i++) {
+      if (!Array.isArray(slots[i]) || slots[i].length < 2) return false;
+      if (slots[i][0] !== p[i][0] || slots[i][1] !== p[i][1]) return false;
+    }
+    return true;
+  }
+
+  function normalizeDayData(v){
+    // Старый формат: просто массив слотов без updatedAt
+    if (Array.isArray(v)) {
+      const slots = v;
+      // Если это старый дефолт (00–01; 08–15; 18:30–22:00) — считаем пустым
+      if (isLegacyDefaultSlots(slots)) {
+        return { slots: [], updatedAt: null };
+      }
+      // Если пользователь реально менял — оставляем
+      return { slots, updatedAt: null };
+    }
+
+    // Новый формат
+    if (!v || !Array.isArray(v.slots)) return defaultDayData();
+
+    let slots = v.slots;
+    let updatedAt = v.updatedAt || null;
+
+    // Если updatedAt ещё нет, а слоты всё ещё старый дефолт — чистим
+    if (!updatedAt && isLegacyDefaultSlots(slots)) {
+      slots = [];
+    }
+
+    return { slots, updatedAt };
+  }
+
   function defaultProfileData(profileKey){
     const daysObj = {};
     days.forEach(d => {
@@ -561,13 +603,6 @@
       queueCode: '6.2',
       days: daysObj
     };
-  }
-
-  function normalizeDayData(v){
-    // старый формат: просто массив
-    if (Array.isArray(v)) return { slots: v, updatedAt: null };
-    if (!v || !Array.isArray(v.slots)) return defaultDayData();
-    return { slots: v.slots, updatedAt: v.updatedAt || null };
   }
 
   function loadProfile(profileKey){
