@@ -71,6 +71,13 @@
       color: #ccc;
     }
 
+    .top-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 6px;
+    }
+
     .lang-switch {
       display: inline-flex;
       border-radius: 999px;
@@ -91,6 +98,23 @@
       background: #ff9500;
       color: #000;
       font-weight: 600;
+    }
+
+    .clear-btn {
+      border: none;
+      padding: 0;
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      background: #151515;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      color: #ccc;
+    }
+    .clear-btn:active {
+      transform: scale(0.92);
     }
 
     .location-switch {
@@ -374,9 +398,14 @@
         <div class="badge" id="queueBadge"></div>
       </div>
     </div>
-    <div class="lang-switch">
-      <button class="lang-btn" data-lang="ru">RU</button>
-      <button class="lang-btn" data-lang="uk">UA</button>
+    <div class="top-right">
+      <div class="lang-switch">
+        <button class="lang-btn" data-lang="ru">RU</button>
+        <button class="lang-btn" data-lang="uk">UA</button>
+      </div>
+      <button class="clear-btn" id="clearStorageBtn" title="Очистить данные">
+        🗑️
+      </button>
     </div>
   </div>
 
@@ -444,20 +473,7 @@
         <div class="import-controls">
           <label id="importQueueLabel">
             Очередь:
-            <select id="importQueueSelect">
-              <option value="1.1">1.1</option>
-              <option value="1.2">1.2</option>
-              <option value="2.1">2.1</option>
-              <option value="2.2">2.2</option>
-              <option value="3.1">3.1</option>
-              <option value="3.2">3.2</option>
-              <option value="4.1">4.1</option>
-              <option value="4.2">4.2</option>
-              <option value="5.1">5.1</option>
-              <option value="5.2">5.2</option>
-              <option value="6.1">6.1</option>
-              <option value="6.2">6.2</option>
-            </select>
+            <select id="importQueueSelect"></select>
           </label>
         </div>
         <textarea id="importText" class="import-text"></textarea>
@@ -498,9 +514,13 @@
       import_button: 'Импортировать',
       import_error: 'Не удалось найти выбранную очередь в тексте.',
       import_queue_label: 'Очередь',
+      import_add_option: '+ добавить…',
+      import_add_prompt: 'Введите номер очереди (например, 7.1):',
       tl_title: 'Сутки: жёлтым — когда есть электроэнергия',
       updated_never: 'Ещё не изменялось',
       updated_prefix: 'Изменено: ',
+      clear_title: 'Очистить все данные',
+      clear_confirm: 'Очистить все сохранённые данные (профили, очереди, город, область)?',
     },
     uk: {
       place_home_default: 'Дім',
@@ -530,20 +550,27 @@
       import_button: 'Імпортувати',
       import_error: 'Не вдалося знайти обрану чергу в тексті.',
       import_queue_label: 'Черга',
+      import_add_option: '+ додати…',
+      import_add_prompt: 'Введіть номер черги (наприклад, 7.1):',
       tl_title: 'Доба: жовтим — коли є електроенергія',
       updated_never: 'Ще не змінювалося',
       updated_prefix: 'Змінено: ',
+      clear_title: 'Очистити всі дані',
+      clear_confirm: 'Очистити всі збережені дані (профілі, черги, місто, область)?',
     }
   };
 
   const PROFILES = ['home', 'work'];
-  // ВАЖНО: новый префикс, чтобы не тянуть старый мусор
+  // Новый префикс для наших профилей
   const PROFILE_KEY_PREFIX = 'off2_profile_';
   const PROFILE_CURRENT_KEY = 'off_profile_current';
   const LANG_KEY = 'off_lang';
   const EDIT_OPEN_KEY = 'off_edit_open';
   const CITY_KEY = 'off_city';
   const REGION_KEY = 'off_region';
+  const IMPORT_QUEUE_LIST_KEY = 'off_import_queues';
+
+  const OLD_PROFILE_KEY_PREFIX = 'off_profile_';
 
   const days = [
     {key: 'mon', labelKey: 'day_mon'},
@@ -555,7 +582,17 @@
     {key: 'sun', labelKey: 'day_sun'},
   ];
 
-  // по умолчанию — нет отключений (массив пустой)
+  // Базовый список очередей
+  const BASE_QUEUES = [
+    '1.1','1.2',
+    '2.1','2.2',
+    '3.1','3.2',
+    '4.1','4.2',
+    '5.1','5.2',
+    '6.1','6.2'
+  ];
+
+  // по умолчанию — нет отключений
   const defaultDaySlots = [];
 
   let currentLang = localStorage.getItem(LANG_KEY) || 'ru';
@@ -576,11 +613,9 @@
   }
 
   function normalizeDayData(v){
-    // Старый формат: просто массив слотов
     if (Array.isArray(v)) {
       return { slots: v, updatedAt: null };
     }
-    // Новый формат
     if (!v || !Array.isArray(v.slots)) return defaultDayData();
     return { slots: v.slots, updatedAt: v.updatedAt || null };
   }
@@ -682,6 +717,7 @@
 
   const langButtons = document.querySelectorAll('.lang-btn');
   const locationButtons = document.querySelectorAll('.location-btn');
+  const clearStorageBtn = document.getElementById('clearStorageBtn');
 
   function parseTimeToMinutes(t){
     const [h,m]=t.split(':').map(Number);
@@ -762,6 +798,47 @@
     });
   }
 
+  function loadImportQueues(){
+    let extra = [];
+    try {
+      extra = JSON.parse(localStorage.getItem(IMPORT_QUEUE_LIST_KEY) || '[]');
+      if (!Array.isArray(extra)) extra = [];
+    } catch(e) {
+      extra = [];
+    }
+    const set = new Set([...BASE_QUEUES, ...extra]);
+    return Array.from(set);
+  }
+
+  function saveImportQueues(list){
+    const extra = list.filter(q => !BASE_QUEUES.includes(q));
+    localStorage.setItem(IMPORT_QUEUE_LIST_KEY, JSON.stringify(extra));
+  }
+
+  function renderImportQueueOptions(){
+    const queues = loadImportQueues();
+    importQueueSelect.innerHTML = '';
+    queues.forEach(q=>{
+      const opt = document.createElement('option');
+      opt.value = q;
+      opt.textContent = q;
+      importQueueSelect.appendChild(opt);
+    });
+    const addOpt = document.createElement('option');
+    addOpt.value = '__add__';
+    addOpt.textContent = t('import_add_option');
+    importQueueSelect.appendChild(addOpt);
+
+    const currentQueue = profiles[currentProfile].queueCode || '6.2';
+    if (queues.includes(currentQueue)) {
+      importQueueSelect.value = currentQueue;
+    } else if (queues.length) {
+      importQueueSelect.value = queues[0];
+    } else {
+      importQueueSelect.value = '__add__';
+    }
+  }
+
   function renderLangTexts(){
     langButtons.forEach(btn=>{
       btn.classList.toggle('active',btn.dataset.lang===currentLang);
@@ -796,6 +873,9 @@
     importBtn.textContent=t('import_button');
     importHintEl.textContent=t('import_hint');
     timelineTitle.textContent=t('tl_title');
+    clearStorageBtn.title = t('clear_title');
+
+    renderImportQueueOptions();
   }
 
   function renderHeader(){
@@ -955,6 +1035,29 @@
     });
   });
 
+  // Очистка всех данных
+  clearStorageBtn.addEventListener('click',()=>{
+    if(!confirm(t('clear_confirm'))) return;
+    const toRemove = [];
+    for(let i=0;i<localStorage.length;i++){
+      const key = localStorage.key(i);
+      if(
+        key.startsWith(PROFILE_KEY_PREFIX) ||
+        key.startsWith(OLD_PROFILE_KEY_PREFIX) ||
+        key===PROFILE_CURRENT_KEY ||
+        key===LANG_KEY ||
+        key===EDIT_OPEN_KEY ||
+        key===CITY_KEY ||
+        key===REGION_KEY ||
+        key===IMPORT_QUEUE_LIST_KEY
+      ){
+        toRemove.push(key);
+      }
+    }
+    toRemove.forEach(k=>localStorage.removeItem(k));
+    location.reload();
+  });
+
   // сворачивание редактора
   editHeader.addEventListener('click',()=>{
     editOpen = (editOpen==='1')?'0':'1';
@@ -962,7 +1065,7 @@
     applyEditCollapse();
   });
 
-  // ручное сохранение
+  // ручное сохранение интервалов
   saveBtn.addEventListener('click',()=>{
     const text=editArea.value.trim();
     const parts=text?text.split(';'):[];
@@ -1013,6 +1116,7 @@
     profiles[currentProfile].queueCode=val;
     saveProfile(currentProfile);
     renderHeader();
+    renderImportQueueOptions();
   });
 
   cityInput.addEventListener('change',()=>{
@@ -1056,8 +1160,37 @@
     return slots;
   }
 
+  // выбор очереди в импорте (обработка "+ добавить…")
+  importQueueSelect.addEventListener('change',()=>{
+    if (importQueueSelect.value === '__add__') {
+      const entered = prompt(t('import_add_prompt'),'7.1');
+      if(!entered){
+        renderImportQueueOptions();
+        return;
+      }
+      const val = entered.trim();
+      if(!val){
+        renderImportQueueOptions();
+        return;
+      }
+      const queues = loadImportQueues();
+      if (!queues.includes(val)) {
+        queues.push(val);
+        saveImportQueues(queues);
+      }
+      renderImportQueueOptions();
+      importQueueSelect.value = val;
+    }
+  });
+
+  // импорт из текста
   importBtn.addEventListener('click',()=>{
     const queueCode=(importQueueSelect.value || profiles[currentProfile].queueCode || '6.2').trim();
+    if(queueCode === '__add__'){
+      // на всякий случай
+      importHintEl.textContent=t('import_error');
+      return;
+    }
     const txt=importText.value.trim();
     if(!txt)return;
     const line=extractQueueLine(txt,queueCode);
