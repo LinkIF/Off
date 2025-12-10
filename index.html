@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Off</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Чтобы на экране Домой выглядело как приложение -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="Off">
+
+  <style>
+    :root {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+      color-scheme: dark;
+    }
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: #000;
+      color: #f5f5f5;
+    }
+    .screen {
+      max-width: 430px;
+      margin: 0 auto;
+      padding: 16px 16px 32px;
+    }
+
+    /* Верх: заголовок + переключатель языка */
+    .top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: #ff9500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+    .title-block {
+      display: flex;
+      flex-direction: column;
+    }
+    .title {
+      font-size: 24px;
+      font-weight: 700;
+    }
+    .subtitle {
+      font-size: 14px;
+      color: #aaa;
+    }
+    .badge {
+      display: inline-flex;
+      margin-top: 6px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      background: #222;
+      font-size: 12px;
+      color: #ccc;
+    }
+
+    .lang-switch {
+      display: inline-flex;
+      border-radius: 999px;
+      background: #151515;
+      padding: 2px;
+      gap: 2px;
+    }
+    .lang-btn {
+      border: none;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      background: transparent;
+      color: #bbb;
+      min-width: 32px;
+    }
+    .lang-btn.active {
+      background: #ff9500;
+      color: #000;
+      font-weight: 600;
+    }
+
+    /* Кнопки дней */
+    .days-row {
+      display: flex;
+      justify-content: space-between;
+      margin: 16px 0 8px;
+    }
+    .day-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 999px;
+      border: none;
+      background: #222;
+      color: #ccc;
+      font-size: 15px;
+    }
+    .day-btn.active {
+      background: #ff9500;
+      color: #fff;
+      font-weight: 600;
+    }
+
+    /* Переключатель режима (откл / свет) — для списка */
+    .mode-switch {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 10px;
+    }
+    .mode-switch-inner {
+      display: inline-flex;
+      border-radius: 999px;
+      background: #151515;
+      padding: 3px;
+      gap: 4px;
+    }
+    .mode-btn {
+      border: none;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      background: transparent;
+      color: #bbb;
+      min-width: 70px;
+    }
+    .mode-btn.active {
+      background: #ff9500;
+      color: #000;
+      font-weight: 600;
+    }
+
+    /* Карточка расписания (список интервалов) */
+    .card {
+      background: #111;
+      border-radius: 18px;
+      padding: 8px 0 6px;
+      overflow: hidden;
+    }
+    .slot-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 16px;
+      font-size: 16px;
+    }
+    .slot-row:nth-child(odd) {
+      background: #151515;
+    }
+    .slot-row.current {
+      background: #262626;
+    }
+    .slot-time {
+      color: #ffb84d; /* жёлтый – и для отключений, и для "есть свет" */
+    }
+    .slot-duration {
+      color: #aaa;
+      font-size: 14px;
+    }
+    .slot-label {
+      color: #777;
+      font-size: 13px;
+    }
+
+    /* Лента "как в Світло" */
+    .timeline {
+      margin-top: 14px;
+      padding: 10px 12px 8px;
+      border-radius: 16px;
+      background: #111;
+      font-size: 12px;
+    }
+    .timeline-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+    .timeline-title {
+      font-weight: 600;
+      font-size: 13px;
+    }
+    .timeline-bar {
+      display: flex;
+      border-radius: 999px;
+      overflow: hidden;
+      height: 18px;
+      background: #222;
+    }
+    .timeline-segment {
+      flex: 1;
+      background: #333;  /* нет света */
+    }
+    .timeline-segment.on {
+      background: #ffb84d; /* есть свет */
+    }
+    .timeline-segment.now {
+      outline: 2px solid #ffffff;
+      outline-offset: -1px;
+    }
+    .timeline-hours {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 4px;
+      color: #777;
+      font-size: 11px;
+    }
+    .timeline-legend {
+      margin-top: 4px;
+      color: #888;
+      font-size: 11px;
+    }
+
+    /* Статус "сейчас" */
+    .now-status {
+      margin-top: 10px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 14px;
+      background: #111;
+      color: #ccc;
+    }
+    .now-status span {
+      font-weight: 600;
+    }
+
+    .footer-note {
+      margin-top: 10px;
+      font-size: 12px;
+      color: #777;
+    }
+
+    .edit-block {
+      margin-top: 18px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: #111;
+      font-size: 13px;
+    }
+    .edit-block textarea {
+      width: 100%;
+      min-height: 80px;
+      margin-top: 6px;
+      border-radius: 10px;
+      border: 1px solid #333;
+      padding: 8px;
+      background: #000;
+      color: #f5f5f5;
+      font-size: 13px;
+      font-family: monospace;
+      resize: vertical;
+    }
+    .edit-block button {
+      margin-top: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: none;
+      background: #ff9500;
+      color: #000;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+<div class="screen">
+  <div class="top-row">
+    <div class="header">
+      <div class="icon">💡</div>
+      <div class="title-block">
+        <div class="title" id="titleHome"></div>
+        <div class="subtitle" id="subtitleRegion"></div>
+        <div class="badge" id="queueBadge"></div>
+      </div>
+    </div>
+    <div class="lang-switch">
+      <button class="lang-btn" data-lang="ru">RU</button>
+      <button class="lang-btn" data-lang="uk">UA</button>
+    </div>
+  </div>
+
+  <div class="days-row" id="daysRow"></div>
+
+  <div class="mode-switch">
+    <div class="mode-switch-inner">
+      <button class="mode-btn" data-mode="off">Отключения</button>
+      <button class="mode-btn" data-mode="on">Есть свет</button>
+    </div>
+  </div>
+
+  <div class="card" id="slotsContainer"></div>
+
+  <div class="timeline" id="timelineBlock">
+    <div class="timeline-header-row">
+      <div class="timeline-title" id="timelineTitle"></div>
+    </div>
+    <div class="timeline-bar" id="timelineBar"></div>
+    <div class="timeline-hours">
+      <span>00</span><span>06</span><span>12</span><span>18</span><span>24</span>
+    </div>
+    <div class="timeline-legend" id="timelineLegend"></div>
+  </div>
+
+  <div class="now-status" id="nowStatus"></div>
+
+  <div class="footer-note" id="footerNote"></div>
+
+  <div class="edit-block">
+    <div id="editTitle"></div>
+    <textarea id="editArea"></textarea>
+    <button id="saveBtn"></button>
+  </div>
+</div>
+
+<script>
+  // ----- I18N -----
+  const i18n = {
+    ru: {
+      title_home: 'Дом',
+      region: 'Николаевская обл.',
+      queue_badge: 'Очередь 6.2',
+      day_mon: 'Пн',
+      day_tue: 'Вт',
+      day_wed: 'Ср',
+      day_thu: 'Чт',
+      day_fri: 'Пт',
+      day_sat: 'Сб',
+      day_sun: 'Вс',
+      footer_note: 'График хранится только на этом устройстве (localStorage). Формат: HH:MM-HH:MM;HH:MM-HH:MM',
+      edit_title: 'Редактировать график для выбранного дня:',
+      save_btn: 'Сохранить для дня',
+      slot_label_off: 'отключение',
+      slot_label_on: 'есть свет',
+      now_loading: 'Загрузка…',
+      now_prefix: 'Сейчас',
+      now_off: 'МОЖЕТ НЕ БЫТЬ СВЕТА',
+      now_ok: 'вне графика отключений',
+      now_time: 'время',
+      mode_off: 'Отключения',
+      mode_on: 'Есть свет',
+      tl_title: 'Сутки: жёлтым — когда есть свет',
+      tl_legend: 'Жёлтый — есть свет, серый — нет света',
+    },
+    uk: {
+      title_home: 'Дім',
+      region: 'Миколаївська обл.',
+      queue_badge: 'Черга 6.2',
+      day_mon: 'Пн',
+      day_tue: 'Вт',
+      day_wed: 'Ср',
+      day_thu: 'Чт',
+      day_fri: 'Пт',
+      day_sat: 'Сб',
+      day_sun: 'Нд',
+      footer_note: 'Графік зберігається тільки на цьому пристрої (localStorage). Формат: HH:MM-HH:MM;HH:MM-HH:MM',
+      edit_title: 'Редагувати графік для обраного дня:',
+      save_btn: 'Зберегти для дня',
+      slot_label_off: 'відключення',
+      slot_label_on: 'є світло',
+      now_loading: 'Завантаження…',
+      now_prefix: 'Зараз',
+      now_off: 'МОЖЕ НЕ БУТИ СВІТЛА',
+      now_ok: 'поза графіком відключень',
+      now_time: 'час',
+      mode_off: 'Відключення',
+      mode_on: 'Є світло',
+      tl_title: 'Доба: жовтим — коли є світло',
+      tl_legend: 'Жовтий — є світло, сірий — немає світла',
+    }
+  };
+
+  const STORAGE_KEY = 'offlight_schedule_62';
+  const LANG_KEY = 'offlight_lang';
+  const MODE_KEY = 'offlight_mode';
+
+  const days = [
+    {key: 'mon', labelKey: 'day_mon'},
+    {key: 'tue', labelKey: 'day_tue'},
+    {key: 'wed', labelKey: 'day_wed'},
+    {key: 'thu', labelKey: 'day_thu'},
+    {key: 'fri', labelKey: 'day_fri'},
+    {key: 'sat', labelKey: 'day_sat'},
+    {key: 'sun', labelKey: 'day_sun'},
+  ];
+
+  const defaultDaySlots = [
+    ['00:00', '01:00'],
+    ['08:00', '15:00'],
+    ['18:30', '22:00'],
+  ];
+
+  let currentLang = localStorage.getItem(LANG_KEY) || 'ru';
+  let currentMode = localStorage.getItem(MODE_KEY) || 'off'; // 'off' или 'on'
+
+  function t(key) {
+    return (i18n[currentLang] && i18n[currentLang][key])
+      || (i18n['ru'] && i18n['ru'][key])
+      || key;
+  }
+
+  function getTodayKey() {
+    const jsDay = new Date().getDay();
+    switch (jsDay) {
+      case 0: return 'sun';
+      case 1: return 'mon';
+      case 2: return 'tue';
+      case 3: return 'wed';
+      case 4: return 'thu';
+      case 5: return 'fri';
+      case 6: return 'sat';
+    }
+  }
+
+  function loadSchedule() {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) {
+      const obj = {};
+      days.forEach(d => obj[d.key] = defaultDaySlots.slice());
+      return obj;
+    }
+    try {
+      const parsed = JSON.parse(raw);
+      days.forEach(d => {
+        if (!Array.isArray(parsed[d.key])) parsed[d.key] = defaultDaySlots.slice();
+      });
+      return parsed;
+    } catch (e) {
+      const obj = {};
+      days.forEach(d => obj[d.key] = defaultDaySlots.slice());
+      return obj;
+    }
+  }
+
+  function saveSchedule(schedule) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(schedule));
+  }
+
+  let schedule = loadSchedule();
+  let currentDayKey = getTodayKey();
+
+  const daysRow = document.getElementById('daysRow');
+  const slotsContainer = document.getElementById('slotsContainer');
+  const nowStatus = document.getElementById('nowStatus');
+  const footerNote = document.getElementById('footerNote');
+  const editTitle = document.getElementById('editTitle');
+  const editArea = document.getElementById('editArea');
+  const saveBtn = document.getElementById('saveBtn');
+  const timelineBar = document.getElementById('timelineBar');
+  const timelineTitle = document.getElementById('timelineTitle');
+  const timelineLegend = document.getElementById('timelineLegend');
+
+  function parseTimeToMinutes(t) {
+    const [h, m] = t.split(':').map(Number);
+    return h * 60 + m;
+  }
+
+  function minutesToTime(m) {
+    m = (m + 1440) % 1440;
+    const h = Math.floor(m / 60);
+    const mm = m % 60;
+    const hhStr = String(h).padStart(2, '0');
+    const mmStr = String(mm).padStart(2, '0');
+    return `${hhStr}:${mmStr}`;
+  }
+
+  function formatDuration(start, end) {
+    let s = parseTimeToMinutes(start);
+    let e = parseTimeToMinutes(end);
+    if (e <= s) e += 24 * 60;
+    const mins = e - s;
+    const hours = Math.floor(mins / 60);
+    const rest = mins % 60;
+    if (currentLang === 'ru') {
+      let res = '';
+      if (hours > 0) res += hours + 'ч';
+      if (rest > 0) res += (res ? ' ' : '') + rest + 'мин';
+      if (!res) res = '0мин';
+      return res;
+    } else {
+      let res = '';
+      if (hours > 0) res += hours + 'г';
+      if (rest > 0) res += (res ? ' ' : '') + rest + 'хв';
+      if (!res) res = '0хв';
+      return res;
+    }
+  }
+
+  function isNowInSlot(start, end) {
+    const now = new Date();
+    const minutesNow = now.getHours() * 60 + now.getMinutes();
+    let s = parseTimeToMinutes(start);
+    let e = parseTimeToMinutes(end);
+    if (e <= s) e += 24 * 60;
+    return minutesNow >= s && minutesNow <= e;
+  }
+
+  // Перевод списка отключений в список "есть свет"
+  function getOnSlots(offSlots) {
+    // Разворачиваем интервалы, учитывая переход через полночь
+    let intervals = [];
+    offSlots.forEach(([start, end]) => {
+      let s = parseTimeToMinutes(start);
+      let e = parseTimeToMinutes(end);
+      if (e <= s) {
+        // пересечение полуночи: [s, 1440) и [0, e)
+        intervals.push([s, 1440]);
+        intervals.push([0, e]);
+      } else {
+        intervals.push([s, e]);
+      }
+    });
+
+    // Сливаем перекрывающиеся интервалы
+    intervals.sort((a, b) => a[0] - b[0]);
+    let merged = [];
+    for (const [s, e] of intervals) {
+      if (!merged.length) {
+        merged.push([s, e]);
+      } else {
+        const last = merged[merged.length - 1];
+        if (s <= last[1]) {
+          last[1] = Math.max(last[1], e);
+        } else {
+          merged.push([s, e]);
+        }
+      }
+    }
+
+    // Строим "свет" как дополнение к 0..1440
+    let on = [];
+    let cur = 0;
+    for (const [s, e] of merged) {
+      if (s > cur) {
+        on.push([cur, s]);
+      }
+      cur = Math.max(cur, e);
+    }
+    if (cur < 1440) {
+      on.push([cur, 1440]);
+    }
+
+    // Переводим назад в HH:MM
+    return on.map(([s, e]) => [minutesToTime(s), minutesToTime(e === 1440 ? 1439 : e)]);
+  }
+
+  // Лента "как в Світло" — 24 сегмента по часам
+  function renderTimeline() {
+    const offSlots = schedule[currentDayKey] || [];
+    const minutesOff = new Array(1440).fill(false);
+
+    // заполняем минуты, где НЕТ света
+    offSlots.forEach(([start, end]) => {
+      let s = parseTimeToMinutes(start);
+      let e = parseTimeToMinutes(end);
+      if (e <= s) {
+        // через полночь
+        for (let m = s; m < 1440; m++) minutesOff[m] = true;
+        for (let m = 0; m < e; m++) minutesOff[m] = true;
+      } else {
+        for (let m = s; m < e; m++) minutesOff[m] = true;
+      }
+    });
+
+    const now = new Date();
+    const nowHour = now.getHours();
+
+    timelineBar.innerHTML = '';
+    for (let h = 0; h < 24; h++) {
+      const center = h * 60 + 30;
+      const off = minutesOff[center];
+      const seg = document.createElement('div');
+      seg.className = 'timeline-segment' + (off ? '' : ' on');
+      if (h === nowHour) {
+        seg.className += ' now';
+      }
+      timelineBar.appendChild(seg);
+    }
+
+    timelineTitle.textContent = t('tl_title');
+    timelineLegend.textContent = t('tl_legend');
+  }
+
+  function renderLangTexts() {
+    document.getElementById('titleHome').textContent = t('title_home');
+    document.getElementById('subtitleRegion').textContent = t('region');
+    document.getElementById('queueBadge').textContent = t('queue_badge');
+    footerNote.innerHTML = t('footer_note');
+    editTitle.textContent = t('edit_title');
+    saveBtn.textContent = t('save_btn');
+    nowStatus.textContent = t('now_loading');
+
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.lang === currentLang);
+    });
+
+    document.querySelectorAll('.day-btn').forEach(btn => {
+      const key = btn.dataset.dayKey;
+      const d = days.find(x => x.key === key);
+      btn.textContent = t(d.labelKey);
+    });
+
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+      const mode = btn.dataset.mode;
+      const key = mode === 'off' ? 'mode_off' : 'mode_on';
+      btn.textContent = t(key);
+      btn.classList.toggle('active', mode === currentMode);
+    });
+
+    // заголовки/легенда ленты
+    timelineTitle.textContent = t('tl_title');
+    timelineLegend.textContent = t('tl_legend');
+  }
+
+  function renderDays() {
+    document.querySelectorAll('.day-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.dayKey === currentDayKey);
+    });
+  }
+
+  function renderSlots() {
+    const offSlots = schedule[currentDayKey] || [];
+    let slotsToShow;
+    let labelKey;
+
+    if (currentMode === 'off') {
+      slotsToShow = offSlots;
+      labelKey = 'slot_label_off';
+    } else {
+      slotsToShow = getOnSlots(offSlots);
+      labelKey = 'slot_label_on';
+    }
+
+    slotsContainer.innerHTML = '';
+
+    slotsToShow.forEach(([start, end]) => {
+      const row = document.createElement('div');
+      const current = isNowInSlot(start, end);
+      row.className = 'slot-row' + (current ? ' current' : '');
+
+      const left = document.createElement('div');
+      left.innerHTML = `<div class="slot-time">${start} – ${end}</div>`;
+
+      const right = document.createElement('div');
+      right.innerHTML = `<div class="slot-duration">${formatDuration(start, end)}</div>
+                         <div class="slot-label">${t(labelKey)}</div>`;
+
+      row.appendChild(left);
+      row.appendChild(right);
+      slotsContainer.appendChild(row);
+    });
+
+    // В поле редактирования всегда показываем ОТКЛЮЧЕНИЯ, как раньше
+    editArea.value = offSlots.map(s => s.join('-')).join(';');
+  }
+
+  function renderNowStatus() {
+    const now = new Date();
+    const slotsToday = schedule[getTodayKey()] || [];
+    let inSlot = false;
+    let currentSlot = null;
+    for (const [start, end] of slotsToday) {
+      if (isNowInSlot(start, end)) {
+        inSlot = true;
+        currentSlot = [start, end];
+        break;
+      }
+    }
+    const timeStr = now.toTimeString().slice(0, 5);
+    if (inSlot) {
+      nowStatus.innerHTML =
+        `${t('now_prefix')} <span>${t('now_off')}</span> (${currentSlot[0]}–${currentSlot[1]}), ${t('now_time')} ${timeStr}`;
+    } else {
+      nowStatus.innerHTML =
+        `${t('now_prefix')} <span>${t('now_ok')}</span>, ${t('now_time')} ${timeStr}`;
+    }
+  }
+
+  function renderAll() {
+    renderLangTexts();
+    renderDays();
+    renderSlots();
+    renderTimeline();
+    renderNowStatus();
+  }
+
+  // Кнопки дней
+  days.forEach(d => {
+    const btn = document.createElement('button');
+    btn.className = 'day-btn';
+    btn.dataset.dayKey = d.key;
+    btn.addEventListener('click', () => {
+      currentDayKey = d.key;
+      renderAll();
+    });
+    daysRow.appendChild(btn);
+  });
+
+  // Смена языка
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const lang = btn.dataset.lang;
+      if (lang === currentLang) return;
+      currentLang = lang;
+      localStorage.setItem(LANG_KEY, lang);
+      renderAll();
+    });
+  });
+
+  // Смена режима (Отключения / Есть свет) — влияет только на список
+  document.querySelectorAll('.mode-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const mode = btn.dataset.mode;
+      if (mode === currentMode) return;
+      currentMode = mode;
+      localStorage.setItem(MODE_KEY, mode);
+      renderAll();
+    });
+  });
+
+  // Сохранение графика (редактируем всегда ОТКЛЮЧЕНИЯ)
+  saveBtn.addEventListener('click', () => {
+    const text = editArea.value.trim();
+    const parts = text ? text.split(';') : [];
+    const slots = [];
+    for (const p of parts) {
+      const trimmed = p.trim();
+      if (!trimmed) continue;
+      const [start, end] = trimmed.split('-').map(x => x.trim());
+      if (!start || !end) continue;
+      slots.push([start, end]);
+    }
+    schedule[currentDayKey] = slots;
+    saveSchedule(schedule);
+    renderAll();
+  });
+
+  renderAll();
+  setInterval(() => {
+    renderNowStatus();
+    renderTimeline();
+  }, 60000);
+</script>
+</body>
+</html>
