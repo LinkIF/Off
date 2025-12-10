@@ -189,7 +189,7 @@
       font-size: 11px;
     }
 
-    /* Список сегментов (как в Світло) */
+    /* Список сегментов */
     .graph-card {
       margin-top: 10px;
       background: #111;
@@ -484,7 +484,8 @@
       import_error: 'Не удалось найти выбранную очередь в тексте.',
       import_queue_label: 'Очередь',
       tl_title: 'Сутки: жёлтым — когда есть электроэнергия',
-      tl_legend: 'Жёлтый — есть электроэнергия, серый — нет электроэнергии',
+      updated_never: 'Ещё не изменялось',
+      updated_prefix: 'Изменено: ',
     },
     uk: {
       place_home_default: 'Дім',
@@ -512,7 +513,8 @@
       import_error: 'Не вдалося знайти обрану чергу в тексті.',
       import_queue_label: 'Черга',
       tl_title: 'Доба: жовтим — коли є електроенергія',
-      tl_legend: 'Жовтий — є електроенергія, сірий — немає електроенергії',
+      updated_never: 'Ще не змінювалося',
+      updated_prefix: 'Змінено: ',
     }
   };
 
@@ -532,11 +534,8 @@
     {key: 'sun', labelKey: 'day_sun'},
   ];
 
-  const defaultDaySlots = [
-    ['00:00','01:00'],
-    ['08:00','15:00'],
-    ['18:30','22:00'],
-  ];
+  // по умолчанию — нет отключений (массив пустой)
+  const defaultDaySlots = [];
 
   let currentLang = localStorage.getItem(LANG_KEY) || 'ru';
   let profiles = {};
@@ -548,20 +547,27 @@
            (i18n['ru'] && i18n['ru'][key]) || key;
   }
 
+  function defaultDayData(){
+    return { slots: defaultDaySlots.slice(), updatedAt: null };
+  }
+
   function defaultProfileData(profileKey){
+    const daysObj = {};
+    days.forEach(d => {
+      daysObj[d.key] = defaultDayData();
+    });
     return {
       name: profileKey === 'home' ? t('place_home_default') : t('place_work_default'),
       queueCode: '6.2',
-      days: {
-        mon: defaultDaySlots.slice(),
-        tue: defaultDaySlots.slice(),
-        wed: defaultDaySlots.slice(),
-        thu: defaultDaySlots.slice(),
-        fri: defaultDaySlots.slice(),
-        sat: defaultDaySlots.slice(),
-        sun: defaultDaySlots.slice(),
-      }
+      days: daysObj
     };
+  }
+
+  function normalizeDayData(v){
+    // старый формат: просто массив
+    if (Array.isArray(v)) return { slots: v, updatedAt: null };
+    if (!v || !Array.isArray(v.slots)) return defaultDayData();
+    return { slots: v.slots, updatedAt: v.updatedAt || null };
   }
 
   function loadProfile(profileKey){
@@ -572,9 +578,11 @@
       if(!parsed.name) parsed.name = defaultProfileData(profileKey).name;
       if(!parsed.queueCode) parsed.queueCode = '6.2';
       if(!parsed.days) parsed.days = {};
-      days.forEach(d=>{
-        if(!Array.isArray(parsed.days[d.key])) parsed.days[d.key]=defaultDaySlots.slice();
+      const daysObj = {};
+      days.forEach(d => {
+        daysObj[d.key] = normalizeDayData(parsed.days[d.key]);
       });
+      parsed.days = daysObj;
       return parsed;
     }catch(e){
       return defaultProfileData(profileKey);
@@ -603,6 +611,7 @@
   let currentDayKey = getTodayKey();
   let editOpen = localStorage.getItem(EDIT_OPEN_KEY) || '0';
 
+  // DOM
   const titlePlaceEl = document.getElementById('titlePlace');
   const subtitleRegionEl = document.getElementById('subtitleRegion');
   const queueBadgeEl = document.getElementById('queueBadge');
@@ -665,11 +674,28 @@
     }
   }
 
+  function getDayData(profileKey, dayKey){
+    const d = profiles[profileKey].days[dayKey];
+    return normalizeDayData(d);
+  }
   function getDaySlots(profileKey, dayKey){
-    return profiles[profileKey].days[dayKey] || [];
+    return getDayData(profileKey, dayKey).slots || [];
+  }
+  function setDaySlots(profileKey, dayKey, slots){
+    profiles[profileKey].days[dayKey] = { slots, updatedAt: Date.now() };
   }
 
-  // строим последовательность on/off сегментов 0–24
+  function formatUpdated(ts){
+    if (!ts) return t('updated_never');
+    const d = new Date(ts);
+    const dd = String(d.getDate()).padStart(2,'0');
+    const mm = String(d.getMonth()+1).padStart(2,'0');
+    const yyyy = d.getFullYear();
+    const hh = String(d.getHours()).padStart(2,'0');
+    const mi = String(d.getMinutes()).padStart(2,'0');
+    return t('updated_prefix') + `${dd}.${mm}.${yyyy} ${hh}:${mi}`;
+  }
+
   function buildSegments(offSlots){
     const minutesOff=new Array(1440).fill(false);
     offSlots.forEach(([start,end])=>{
@@ -730,7 +756,6 @@
     importBtn.textContent=t('import_button');
     importHintEl.textContent=t('import_hint');
     timelineTitle.textContent=t('tl_title');
-    timelineLegend.textContent=t('tl_legend');
   }
 
   function renderHeader(){
@@ -747,7 +772,8 @@
   }
 
   function renderTimeline(){
-    const offSlots=getDaySlots(currentProfile,currentDayKey);
+    const dayData = getDayData(currentProfile,currentDayKey);
+    const offSlots = dayData.slots || [];
     const minutesOff=new Array(1440).fill(false);
     offSlots.forEach(([start,end])=>{
       let s=parseTimeToMinutes(start), e=parseTimeToMinutes(end);
@@ -771,6 +797,8 @@
       if(h===nowHour) seg.className+=' now';
       timelineBar.appendChild(seg);
     }
+
+    timelineLegend.textContent = formatUpdated(dayData.updatedAt);
   }
 
   function renderGraph(){
@@ -842,6 +870,7 @@
     applyEditCollapse();
   }
 
+  // кнопки дней
   days.forEach(d=>{
     const btn=document.createElement('button');
     btn.className='day-btn';
@@ -853,6 +882,7 @@
     daysRow.appendChild(btn);
   });
 
+  // язык
   langButtons.forEach(btn=>{
     btn.addEventListener('click',()=>{
       const lang=btn.dataset.lang;
@@ -863,6 +893,7 @@
     });
   });
 
+  // Дом / Работа
   locationButtons.forEach(btn=>{
     btn.addEventListener('click',()=>{
       const p=btn.dataset.profile;
@@ -873,12 +904,14 @@
     });
   });
 
+  // сворачивание редактора
   editHeader.addEventListener('click',()=>{
     editOpen = (editOpen==='1')?'0':'1';
     localStorage.setItem(EDIT_OPEN_KEY,editOpen);
     applyEditCollapse();
   });
 
+  // ручное сохранение
   saveBtn.addEventListener('click',()=>{
     const text=editArea.value.trim();
     const parts=text?text.split(';'):[];
@@ -899,7 +932,7 @@
       let end=normalize(pieces[1].trim());
       slots.push([start,end]);
     }
-    profiles[currentProfile].days[currentDayKey]=slots;
+    setDaySlots(currentProfile,currentDayKey,slots);
     saveProfile(currentProfile);
     renderTimeline();
     renderGraph();
@@ -965,7 +998,7 @@
       importHintEl.textContent=t('import_error');
       return;
     }
-    profiles[currentProfile].days[currentDayKey]=slots;
+    setDaySlots(currentProfile,currentDayKey,slots);
     profiles[currentProfile].queueCode=queueCode;
     saveProfile(currentProfile);
     importText.value='';
