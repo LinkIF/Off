@@ -5,7 +5,6 @@
   <title>Off</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Чтобы на экране Домой выглядело как приложение -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="apple-mobile-web-app-title" content="Off">
@@ -28,7 +27,6 @@
       padding: 16px 16px 32px;
     }
 
-    /* Верх: заголовок + переключатель языка */
     .top-row {
       display: flex;
       justify-content: space-between;
@@ -95,7 +93,6 @@
       font-weight: 600;
     }
 
-    /* Переключатель объектa (Дом / Работа) */
     .location-switch {
       display: flex;
       justify-content: center;
@@ -123,11 +120,10 @@
       font-weight: 600;
     }
 
-    /* Кнопки дней */
     .days-row {
       display: flex;
       justify-content: space-between;
-      margin: 14px 0 4px;
+      margin: 14px 0 2px;
     }
     .day-btn {
       width: 40px;
@@ -144,110 +140,63 @@
       font-weight: 600;
     }
 
-    .day-mode-label {
-      font-size: 11px;
-      color: #777;
-      margin-bottom: 10px;
-    }
-
-    /* Карточка расписания (список интервалов ОТКЛЮЧЕНИЯ) */
-    .card {
+    .graph-card {
+      margin-top: 10px;
       background: #111;
       border-radius: 18px;
-      padding: 8px 0 6px;
       overflow: hidden;
-      margin-top: 12px;
     }
-    .slot-row {
+    .graph-row {
       display: flex;
-      justify-content: space-between;
       align-items: center;
       padding: 8px 16px;
       font-size: 16px;
     }
-    .slot-row:nth-child(odd) {
+    .graph-row:nth-child(odd) {
       background: #151515;
     }
-    .slot-row.current {
+    .graph-row.current {
       background: #262626;
     }
-    .slot-time {
+    .graph-icon {
+      width: 20px;
+      margin-right: 8px;
+      font-size: 14px;
+      text-align: center;
+      color: #777;
+    }
+    .graph-time {
+      flex: 1;
+      font-weight: 500;
+    }
+    .graph-time.on {
       color: #ffb84d;
     }
-    .slot-duration {
-      color: #aaa;
-      font-size: 14px;
+    .graph-time.off {
+      color: #888;
     }
-    .slot-label {
-      color: #777;
-      font-size: 13px;
+    .graph-duration {
+      font-size: 14px;
+      color: #aaa;
+      margin-left: 8px;
+      white-space: nowrap;
     }
 
-    /* Лента "как в Світло" */
-    .timeline {
-      margin-top: 10px;
-      padding: 10px 12px 8px;
-      border-radius: 16px;
+    .off-list {
+      margin-top: 8px;
+      padding: 6px 10px;
+      border-radius: 12px;
       background: #111;
       font-size: 12px;
-    }
-    .timeline-header-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 6px;
-    }
-    .timeline-title {
-      font-weight: 600;
-      font-size: 13px;
-    }
-    .timeline-bar {
-      display: flex;
-      border-radius: 999px;
-      overflow: hidden;
-      height: 18px;
-      background: #222;
-    }
-    .timeline-segment {
-      flex: 1;
-      background: #333;  /* нет электроэнергии */
-    }
-    .timeline-segment.on {
-      background: #ffb84d; /* есть электроэнергия */
-    }
-    .timeline-segment.now {
-      outline: 2px solid #ffffff;
-      outline-offset: -1px;
-    }
-    .timeline-hours {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 4px;
-      color: #777;
-      font-size: 11px;
-    }
-    .timeline-legend {
-      margin-top: 4px;
-      color: #888;
-      font-size: 11px;
-    }
-
-    /* Статус "сейчас" */
-    .now-status {
-      margin-top: 10px;
-      padding: 10px 14px;
-      border-radius: 12px;
-      font-size: 14px;
-      background: #111;
       color: #ccc;
     }
-    .now-status span {
+    .off-list span.label {
       font-weight: 600;
+      margin-right: 4px;
     }
 
-    /* Редактор (сворачиваемый) */
     .edit-block {
-      margin-top: 18px;
+      margin-top: 16px;
       border-radius: 14px;
       background: #111;
       font-size: 13px;
@@ -269,7 +218,7 @@
     }
     .edit-body {
       padding: 0 14px 12px;
-      display: none; /* по умолчанию скрыто */
+      display: none;
     }
     .edit-note {
       margin-top: 4px;
@@ -307,9 +256,13 @@
       margin-top: 10px;
       font-size: 13px;
     }
+    .edit-config label {
+      display: block;
+      margin-bottom: 4px;
+    }
     .edit-config input {
       margin-left: 6px;
-      max-width: 80px;
+      max-width: 140px;
       padding: 3px 6px;
       border-radius: 8px;
       border: 1px solid #333;
@@ -366,7 +319,7 @@
     <div class="header">
       <div class="icon">💡</div>
       <div class="title-block">
-        <div class="title" id="titleHome"></div>
+        <div class="title" id="titlePlace"></div>
         <div class="subtitle" id="subtitleRegion"></div>
         <div class="badge" id="queueBadge"></div>
       </div>
@@ -385,22 +338,10 @@
   </div>
 
   <div class="days-row" id="daysRow"></div>
-  <div class="day-mode-label" id="dayModeLabel"></div>
 
-  <div class="timeline" id="timelineBlock">
-    <div class="timeline-header-row">
-      <div class="timeline-title" id="timelineTitle"></div>
-    </div>
-    <div class="timeline-bar" id="timelineBar"></div>
-    <div class="timeline-hours">
-      <span>00</span><span>06</span><span>12</span><span>18</span><span>24</span>
-    </div>
-    <div class="timeline-legend" id="timelineLegend"></div>
-  </div>
+  <div class="graph-card" id="graphCard"></div>
 
-  <div class="card" id="slotsContainer"></div>
-
-  <div class="now-status" id="nowStatus"></div>
+  <div class="off-list" id="offList"></div>
 
   <div class="edit-block">
     <div class="edit-header" id="editHeader">
@@ -415,6 +356,10 @@
       <button id="saveBtn"></button>
 
       <div class="edit-config">
+        <label id="placeNameLabel">
+          Название места:
+          <input id="placeNameInput" type="text" placeholder="Дом">
+        </label>
         <label id="queueLabel">
           Очередь:
           <input id="queueInput" type="text" placeholder="6.2">
@@ -442,7 +387,7 @@
             </select>
           </label>
         </div>
-        <textarea id="importText" class="import-text" placeholder=""></textarea>
+        <textarea id="importText" class="import-text"></textarea>
         <button id="importBtn"></button>
         <div class="import-hint" id="importHint"></div>
       </div>
@@ -451,11 +396,10 @@
 </div>
 
 <script>
-  // ----- I18N -----
   const i18n = {
     ru: {
-      title_home: 'Дом',
-      title_work: 'Работа',
+      place_home_default: 'Дом',
+      place_work_default: 'Работа',
       region: 'Николаевская обл.',
       day_mon: 'Пн',
       day_tue: 'Вт',
@@ -464,33 +408,28 @@
       day_fri: 'Пт',
       day_sat: 'Сб',
       day_sun: 'Вс',
-      footer_note: 'Формат: HH:MM-HH:MM;HH:MM-HH:MM. Редактируется график ОТКЛЮЧЕНИЯ электроэнергии для выбранного дня (будни/выходные).',
-      edit_header: 'Редактирование графика',
-      edit_title: 'Интервалы отключения электроэнергии (ручное редактирование):',
-      save_btn: 'Сохранить',
-      slot_label_off: 'нет электроэнергии',
-      slot_label_on: 'есть электроэнергия',
-      now_loading: 'Загрузка…',
-      now_prefix: 'Сейчас',
-      now_off: 'МОЖЕТ НЕ БЫТЬ ЭЛЕКТРОЭНЕРГИИ',
-      now_ok: 'электроэнергия есть по графику',
-      now_time: 'время',
-      tl_title: 'Сутки: жёлтым — когда есть электроэнергия',
-      tl_legend: 'Жёлтый — есть электроэнергия, серый — нет электроэнергии',
       location_home: 'Дом',
       location_work: 'Работа',
-      day_mode_prefix: 'Режим: ',
-      weekday_label: 'будни',
-      weekend_label: 'выходные',
+      off_list_label: 'Отключения:',
+      edit_header: 'Редактирование графика',
+      edit_note: 'Формат: HH:MM-HH:MM;HH:MM-HH:MM. Редактируется график ОТКЛЮЧЕНИЯ электроэнергии для выбранного дня.',
+      edit_title: 'Интервалы отключения электроэнергии (ручное редактирование):',
+      save_btn: 'Сохранить',
+      place_name_label: 'Название места',
+      queue_label: 'Очередь',
       import_title: 'Импорт графика из текста',
-      import_hint: 'Вставьте сюда сообщение с полным расписанием, выберите очередь и нажмите «Импортировать». Будет обновлён текущий режим (будни/выходные) для выбранного объекта.',
+      import_hint: 'Вставьте сюда сообщение с полным расписанием, выберите очередь и нажмите «Импортировать».',
       import_button: 'Импортировать',
       import_error: 'Не удалось найти выбранную очередь в тексте.',
-      queue_label: 'Очередь',
+      import_queue_label: 'Очередь',
+      seg_on_icon: '',
+      seg_off_icon: '✖',
+      seg_on_label: '',
+      seg_off_label: '',
     },
     uk: {
-      title_home: 'Дім',
-      title_work: 'Робота',
+      place_home_default: 'Дім',
+      place_work_default: 'Робота',
       region: 'Миколаївська обл.',
       day_mon: 'Пн',
       day_tue: 'Вт',
@@ -499,37 +438,32 @@
       day_fri: 'Пт',
       day_sat: 'Сб',
       day_sun: 'Нд',
-      footer_note: 'Формат: HH:MM-HH:MM;HH:MM-HH:MM. Редагується графік ВІДКЛЮЧЕННЯ електроенергії для обраного дня (будні/вихідні).',
-      edit_header: 'Редагування графіка',
-      edit_title: 'Інтервали відключення електроенергії (ручне редагування):',
-      save_btn: 'Зберегти',
-      slot_label_off: 'немає електроенергії',
-      slot_label_on: 'є електроенергія',
-      now_loading: 'Завантаження…',
-      now_prefix: 'Зараз',
-      now_off: 'МОЖЕ НЕ БУТИ ЕЛЕКТРОЕНЕРГІЇ',
-      now_ok: 'електроенергія є за графіком',
-      now_time: 'час',
-      tl_title: 'Доба: жовтим — коли є електроенергія',
-      tl_legend: 'Жовтий — є електроенергія, сірий — немає електроенергії',
       location_home: 'Дім',
       location_work: 'Робота',
-      day_mode_prefix: 'Режим: ',
-      weekday_label: 'будні',
-      weekend_label: 'вихідні',
+      off_list_label: 'Відключення:',
+      edit_header: 'Редагування графіка',
+      edit_note: 'Формат: HH:MM-HH:MM;HH:MM-HH:MM. Редагується графік ВІДКЛЮЧЕННЯ електроенергії для обраного дня.',
+      edit_title: 'Інтервали відключення електроенергії (ручне редагування):',
+      save_btn: 'Зберегти',
+      place_name_label: 'Назва місця',
+      queue_label: 'Черга',
       import_title: 'Імпорт графіка з тексту',
-      import_hint: 'Вставте сюди повідомлення з повним розкладом, оберіть чергу і натисніть «Імпортувати». Буде оновлено поточний режим (будні/вихідні) для обраного об’єкта.',
+      import_hint: 'Вставте сюди повідомлення з повним розкладом, оберіть чергу та натисніть «Імпортувати».',
       import_button: 'Імпортувати',
       import_error: 'Не вдалося знайти обрану чергу в тексті.',
-      queue_label: 'Черга',
+      import_queue_label: 'Черга',
+      seg_on_icon: '',
+      seg_off_icon: '✖',
+      seg_on_label: '',
+      seg_off_label: '',
     }
   };
 
   const PROFILES = ['home', 'work'];
-  const PROFILE_KEY_PREFIX = 'offlight_profile_';
-  const PROFILE_CURRENT_KEY = 'offlight_profile_current';
-  const LANG_KEY = 'offlight_lang';
-  const EDIT_OPEN_KEY = 'offlight_edit_open';
+  const PROFILE_KEY_PREFIX = 'off_profile_';
+  const PROFILE_CURRENT_KEY = 'off_profile_current';
+  const LANG_KEY = 'off_lang';
+  const EDIT_OPEN_KEY = 'off_edit_open';
 
   const days = [
     {key: 'mon', labelKey: 'day_mon'},
@@ -542,9 +476,9 @@
   ];
 
   const defaultDaySlots = [
-    ['00:00', '01:00'],
-    ['08:00', '15:00'],
-    ['18:30', '22:00'],
+    ['00:00','01:00'],
+    ['08:00','15:00'],
+    ['18:30','22:00'],
   ];
 
   let currentLang = localStorage.getItem(LANG_KEY) || 'ru';
@@ -552,15 +486,53 @@
   let currentProfile = localStorage.getItem(PROFILE_CURRENT_KEY) || 'home';
   if (!PROFILES.includes(currentProfile)) currentProfile = 'home';
 
-  function t(key) {
-    return (i18n[currentLang] && i18n[currentLang][key])
-      || (i18n['ru'] && i18n['ru'][key])
-      || key;
+  function t(key){
+    return (i18n[currentLang] && i18n[currentLang][key]) ||
+           (i18n['ru'] && i18n['ru'][key]) || key;
   }
 
-  function getTodayKey() {
+  function defaultProfileData(profileKey){
+    return {
+      name: profileKey === 'home' ? t('place_home_default') : t('place_work_default'),
+      queueCode: '6.2',
+      days: {
+        mon: defaultDaySlots.slice(),
+        tue: defaultDaySlots.slice(),
+        wed: defaultDaySlots.slice(),
+        thu: defaultDaySlots.slice(),
+        fri: defaultDaySlots.slice(),
+        sat: defaultDaySlots.slice(),
+        sun: defaultDaySlots.slice(),
+      }
+    };
+  }
+
+  function loadProfile(profileKey){
+    const raw = localStorage.getItem(PROFILE_KEY_PREFIX + profileKey);
+    if(!raw) return defaultProfileData(profileKey);
+    try{
+      const parsed = JSON.parse(raw);
+      if(!parsed.name) parsed.name = defaultProfileData(profileKey).name;
+      if(!parsed.queueCode) parsed.queueCode = '6.2';
+      if(!parsed.days) parsed.days = {};
+      days.forEach(d=>{
+        if(!Array.isArray(parsed.days[d.key])) parsed.days[d.key]=defaultDaySlots.slice();
+      });
+      return parsed;
+    }catch(e){
+      return defaultProfileData(profileKey);
+    }
+  }
+
+  function saveProfile(profileKey){
+    localStorage.setItem(PROFILE_KEY_PREFIX + profileKey, JSON.stringify(profiles[profileKey]));
+  }
+
+  PROFILES.forEach(p => profiles[p]=loadProfile(p));
+
+  let currentDayKey = (function(){
     const jsDay = new Date().getDay();
-    switch (jsDay) {
+    switch(jsDay){
       case 0: return 'sun';
       case 1: return 'mon';
       case 2: return 'tue';
@@ -569,56 +541,16 @@
       case 5: return 'fri';
       case 6: return 'sat';
     }
-  }
+  })();
 
-  function isWeekendDay(dayKey) {
-    return dayKey === 'sat' || dayKey === 'sun';
-  }
-
-  function defaultProfileData() {
-    return {
-      weekday: defaultDaySlots.slice(),
-      weekend: defaultDaySlots.slice(),
-      queueCode: '6.2',
-    };
-  }
-
-  function loadProfile(profile) {
-    const raw = localStorage.getItem(PROFILE_KEY_PREFIX + profile);
-    if (!raw) return defaultProfileData();
-    try {
-      const parsed = JSON.parse(raw);
-      if (!Array.isArray(parsed.weekday)) parsed.weekday = defaultDaySlots.slice();
-      if (!Array.isArray(parsed.weekend)) parsed.weekend = defaultDaySlots.slice();
-      if (!parsed.queueCode) parsed.queueCode = '6.2';
-      return parsed;
-    } catch (e) {
-      return defaultProfileData();
-    }
-  }
-
-  function saveProfile(profile) {
-    localStorage.setItem(PROFILE_KEY_PREFIX + profile, JSON.stringify(profiles[profile]));
-  }
-
-  PROFILES.forEach(p => {
-    profiles[p] = loadProfile(p);
-  });
-
-  let currentDayKey = getTodayKey();
   let editOpen = localStorage.getItem(EDIT_OPEN_KEY) || '0';
 
-  // DOM элементы
-  const titleHomeEl = document.getElementById('titleHome');
+  const titlePlaceEl = document.getElementById('titlePlace');
   const subtitleRegionEl = document.getElementById('subtitleRegion');
   const queueBadgeEl = document.getElementById('queueBadge');
   const daysRow = document.getElementById('daysRow');
-  const dayModeLabelEl = document.getElementById('dayModeLabel');
-  const slotsContainer = document.getElementById('slotsContainer');
-  const nowStatus = document.getElementById('nowStatus');
-  const timelineBar = document.getElementById('timelineBar');
-  const timelineTitle = document.getElementById('timelineTitle');
-  const timelineLegend = document.getElementById('timelineLegend');
+  const graphCard = document.getElementById('graphCard');
+  const offListEl = document.getElementById('offList');
 
   const editHeader = document.getElementById('editHeader');
   const editHeaderTitle = document.getElementById('editHeaderTitle');
@@ -628,386 +560,327 @@
   const editTitleEl = document.getElementById('editTitle');
   const editArea = document.getElementById('editArea');
   const saveBtn = document.getElementById('saveBtn');
+  const placeNameInput = document.getElementById('placeNameInput');
   const queueInput = document.getElementById('queueInput');
+  const placeNameLabel = document.getElementById('placeNameLabel');
+  const queueLabel = document.getElementById('queueLabel');
 
   const importTitleEl = document.getElementById('importTitle');
+  const importQueueLabel = document.getElementById('importQueueLabel');
   const importQueueSelect = document.getElementById('importQueueSelect');
   const importText = document.getElementById('importText');
   const importBtn = document.getElementById('importBtn');
   const importHintEl = document.getElementById('importHint');
-  const queueLabelEl = document.getElementById('queueLabel');
-  const importQueueLabelEl = document.getElementById('importQueueLabel');
 
   const langButtons = document.querySelectorAll('.lang-btn');
   const locationButtons = document.querySelectorAll('.location-btn');
 
-  function parseTimeToMinutes(t) {
-    const [h, m] = t.split(':').map(Number);
-    return h * 60 + m;
+  function parseTimeToMinutes(t){
+    const [h,m]=t.split(':').map(Number);
+    return h*60+(m||0);
   }
-
-  function minutesToTime(m) {
-    m = (m + 1440) % 1440;
-    const h = Math.floor(m / 60);
-    const mm = m % 60;
-    const hhStr = String(h).padStart(2, '0');
-    const mmStr = String(mm).padStart(2, '0');
-    return `${hhStr}:${mmStr}`;
+  function minutesToTime(m){
+    m=(m+1440)%1440;
+    const h=Math.floor(m/60), mm=m%60;
+    return String(h).padStart(2,'0')+':'+String(mm).padStart(2,'0');
   }
-
-  function formatDuration(start, end) {
-    let s = parseTimeToMinutes(start);
-    let e = parseTimeToMinutes(end);
-    if (e <= s) e += 24 * 60;
-    const mins = e - s;
-    const hours = Math.floor(mins / 60);
-    const rest = mins % 60;
-    if (currentLang === 'ru') {
-      let res = '';
-      if (hours > 0) res += hours + 'ч';
-      if (rest > 0) res += (res ? ' ' : '') + rest + 'мин';
-      if (!res) res = '0мин';
+  function formatDuration(start,end){
+    let s=parseTimeToMinutes(start), e=parseTimeToMinutes(end);
+    if(e<=s)e+=1440;
+    const mins=e-s, h=Math.floor(mins/60), r=mins%60;
+    if(currentLang==='ru'){
+      let res='';
+      if(h>0)res+=h+'ч';
+      if(r>0)res+=(res?' ':'')+r+'мин';
+      if(!res)res='0мин';
       return res;
-    } else {
-      let res = '';
-      if (hours > 0) res += hours + 'г';
-      if (rest > 0) res += (res ? ' ' : '') + rest + 'хв';
-      if (!res) res = '0хв';
+    }else{
+      let res='';
+      if(h>0)res+=h+'г';
+      if(r>0)res+=(res?' ':'')+r+'хв';
+      if(!res)res='0хв';
       return res;
     }
   }
 
-  function isNowInSlot(start, end) {
-    const now = new Date();
-    const minutesNow = now.getHours() * 60 + now.getMinutes();
-    let s = parseTimeToMinutes(start);
-    let e = parseTimeToMinutes(end);
-    if (e <= s) e += 24 * 60;
-    return minutesNow >= s && minutesNow <= e;
+  function getDaySlots(profileKey, dayKey){
+    return profiles[profileKey].days[dayKey] || [];
   }
 
-  function getProfileSlots(profileKey, dayKey) {
-    const profile = profiles[profileKey];
-    const group = isWeekendDay(dayKey) ? 'weekend' : 'weekday';
-    return profile[group] || [];
-  }
-
-  // Лента "как в Світло" — 24 сегмента по часам
-  function renderTimeline() {
-    const offSlots = getProfileSlots(currentProfile, currentDayKey);
-    const minutesOff = new Array(1440).fill(false);
-
-    offSlots.forEach(([start, end]) => {
-      let s = parseTimeToMinutes(start);
-      let e = parseTimeToMinutes(end);
-      if (e <= s) {
-        for (let m = s; m < 1440; m++) minutesOff[m] = true;
-        for (let m = 0; m < e; m++) minutesOff[m] = true;
-      } else {
-        for (let m = s; m < e; m++) minutesOff[m] = true;
+  function buildSegments(offSlots){
+    const minutesOff=new Array(1440).fill(false);
+    offSlots.forEach(([start,end])=>{
+      let s=parseTimeToMinutes(start), e=parseTimeToMinutes(end);
+      if(e<=s){
+        for(let m=s;m<1440;m++)minutesOff[m]=true;
+        for(let m=0;m<e;m++)minutesOff[m]=true;
+      }else{
+        for(let m=s;m<e;m++)minutesOff[m]=true;
       }
     });
-
-    const now = new Date();
-    const nowHour = now.getHours();
-
-    timelineBar.innerHTML = '';
-    for (let h = 0; h < 24; h++) {
-      const center = h * 60 + 30;
-      const off = minutesOff[center];
-      const seg = document.createElement('div');
-      seg.className = 'timeline-segment' + (off ? '' : ' on');
-      if (h === nowHour) {
-        seg.className += ' now';
-      }
-      timelineBar.appendChild(seg);
-    }
-
-    timelineTitle.textContent = t('tl_title');
-    timelineLegend.textContent = t('tl_legend');
-  }
-
-  function renderLangTexts() {
-    const titleKey = currentProfile === 'home' ? 'title_home' : 'title_work';
-    titleHomeEl.textContent = t(titleKey);
-    subtitleRegionEl.textContent = t('region');
-
-    const queueCode = profiles[currentProfile].queueCode || '6.2';
-    const queuePrefix = currentLang === 'ru' ? t('queue_label') : t('queue_label');
-    queueBadgeEl.textContent = queuePrefix + ' ' + queueCode;
-
-    langButtons.forEach(btn => {
-      btn.classList.toggle('active', btn.dataset.lang === currentLang);
-    });
-
-    locationButtons.forEach(btn => {
-      const p = btn.dataset.profile;
-      const txtKey = p === 'home' ? 'location_home' : 'location_work';
-      btn.textContent = t(txtKey);
-      btn.classList.toggle('active', p === currentProfile);
-    });
-
-    document.querySelectorAll('.day-btn').forEach(btn => {
-      const key = btn.dataset.dayKey;
-      const d = days.find(x => x.key === key);
-      btn.textContent = t(d.labelKey);
-    });
-
-    editHeaderTitle.textContent = t('edit_header');
-    editNoteEl.textContent = t('footer_note');
-    editTitleEl.textContent = t('edit_title');
-    saveBtn.textContent = t('save_btn');
-    queueLabelEl.childNodes[0].nodeValue = t('queue_label') + ': ';
-    importTitleEl.textContent = t('import_title');
-    importQueueLabelEl.childNodes[0].nodeValue = t('queue_label') + ': ';
-    importBtn.textContent = t('import_button');
-    importHintEl.textContent = t('import_hint');
-
-    timelineTitle.textContent = t('tl_title');
-    timelineLegend.textContent = t('tl_legend');
-  }
-
-  function renderDays() {
-    document.querySelectorAll('.day-btn').forEach(btn => {
-      btn.classList.toggle('active', btn.dataset.dayKey === currentDayKey);
-    });
-  }
-
-  function renderDayModeLabel() {
-    const weekend = isWeekendDay(currentDayKey);
-    const labelKey = weekend ? 'weekend_label' : 'weekday_label';
-    dayModeLabelEl.textContent = t('day_mode_prefix') + t(labelKey);
-  }
-
-  function renderSlots() {
-    const offSlots = getProfileSlots(currentProfile, currentDayKey);
-    slotsContainer.innerHTML = '';
-
-    offSlots.forEach(([start, end]) => {
-      const row = document.createElement('div');
-      const current = isNowInSlot(start, end);
-      row.className = 'slot-row' + (current ? ' current' : '');
-
-      const left = document.createElement('div');
-      left.innerHTML = `<div class="slot-time">${start} – ${end}</div>`;
-
-      const right = document.createElement('div');
-      right.innerHTML = `<div class="slot-duration">${formatDuration(start, end)}</div>
-                         <div class="slot-label">${t('slot_label_off')}</div>`;
-
-      row.appendChild(left);
-      row.appendChild(right);
-      slotsContainer.appendChild(row);
-    });
-
-    // в редакторе всегда показываем отключения
-    editArea.value = offSlots.map(s => s.join('-')).join(';');
-  }
-
-  function renderNowStatus() {
-    const now = new Date();
-    const todayKey = getTodayKey();
-    const slotsToday = getProfileSlots(currentProfile, todayKey);
-    let inSlot = false;
-    let currentSlot = null;
-    for (const [start, end] of slotsToday) {
-      if (isNowInSlot(start, end)) {
-        inSlot = true;
-        currentSlot = [start, end];
-        break;
+    const segments=[];
+    let currentState=minutesOff[0];
+    let start=0;
+    for(let m=1;m<=1440;m++){
+      const state=m<1440?minutesOff[m]:null;
+      if(state!==currentState){
+        segments.push({start,startMin:start,endMin:m,type:currentState?'off':'on'});
+        start=m;
+        currentState=state;
       }
     }
-    const timeStr = now.toTimeString().slice(0, 5);
-    if (inSlot && currentSlot) {
-      nowStatus.innerHTML =
-        `${t('now_prefix')} <span>${t('now_off')}</span> (${currentSlot[0]}–${currentSlot[1]}), ${t('now_time')} ${timeStr}`;
-    } else {
-      nowStatus.innerHTML =
-        `${t('now_prefix')} <span>${t('now_ok')}</span>, ${t('now_time')} ${timeStr}`;
+    return segments.map(seg=>{
+      const sTime=minutesToTime(seg.startMin);
+      const eTime=minutesToTime(seg.endMin%1440);
+      return {start:sTime,end:eTime,type:seg.type};
+    });
+  }
+
+  function renderLangTexts(){
+    subtitleRegionEl.textContent=t('region');
+
+    langButtons.forEach(btn=>{
+      btn.classList.toggle('active',btn.dataset.lang===currentLang);
+    });
+
+    locationButtons.forEach(btn=>{
+      const p=btn.dataset.profile;
+      const key=p==='home'?'location_home':'location_work';
+      btn.textContent=t(key);
+      btn.classList.toggle('active',p===currentProfile);
+    });
+
+    document.querySelectorAll('.day-btn').forEach(btn=>{
+      const key=btn.dataset.dayKey;
+      const d=days.find(x=>x.key===key);
+      btn.textContent=t(d.labelKey);
+    });
+
+    editHeaderTitle.textContent=t('edit_header');
+    editNoteEl.textContent=t('edit_note');
+    editTitleEl.textContent=t('edit_title');
+    saveBtn.textContent=t('save_btn');
+    placeNameLabel.childNodes[0].nodeValue=t('place_name_label')+': ';
+    queueLabel.childNodes[0].nodeValue=t('queue_label')+': ';
+    importTitleEl.textContent=t('import_title');
+    importQueueLabel.childNodes[0].nodeValue=t('import_queue_label')+': ';
+    importBtn.textContent=t('import_button');
+    importHintEl.textContent=t('import_hint');
+  }
+
+  function renderHeader(){
+    const profile=profiles[currentProfile];
+    titlePlaceEl.textContent=profile.name || (currentProfile==='home'?t('place_home_default'):t('place_work_default'));
+    subtitleRegionEl.textContent=t('region');
+    queueBadgeEl.textContent=t('queue_label')+' '+(profile.queueCode || '6.2');
+  }
+
+  function renderDays(){
+    document.querySelectorAll('.day-btn').forEach(btn=>{
+      btn.classList.toggle('active',btn.dataset.dayKey===currentDayKey);
+    });
+  }
+
+  function renderGraph(){
+    const offSlots=getDaySlots(currentProfile,currentDayKey);
+    const segments=buildSegments(offSlots);
+
+    graphCard.innerHTML='';
+    const now=new Date();
+    const nowMinutes=now.getHours()*60+now.getMinutes();
+
+    segments.forEach(seg=>{
+      const row=document.createElement('div');
+      row.className='graph-row';
+
+      let s=parseTimeToMinutes(seg.start), e=parseTimeToMinutes(seg.end);
+      if(e<=s)e+=1440;
+      const center=((s+e)/2);
+      const nowAdj=nowMinutes< s ? nowMinutes+1440 : nowMinutes;
+      if(nowAdj>=s && nowAdj<=e){
+        row.classList.add('current');
+      }
+
+      const iconDiv=document.createElement('div');
+      iconDiv.className='graph-icon';
+      iconDiv.textContent= seg.type==='off' ? t('seg_off_icon') : t('seg_on_icon');
+
+      const timeDiv=document.createElement('div');
+      timeDiv.className='graph-time '+(seg.type==='off'?'off':'on');
+      timeDiv.textContent=`${seg.start} – ${seg.end}`;
+
+      const durDiv=document.createElement('div');
+      durDiv.className='graph-duration';
+      durDiv.textContent=formatDuration(seg.start,seg.end);
+
+      row.appendChild(iconDiv);
+      row.appendChild(timeDiv);
+      row.appendChild(durDiv);
+      graphCard.appendChild(row);
+    });
+
+    const label=t('off_list_label');
+    if(offSlots.length){
+      const listStr=offSlots.map(s=>`${s[0]}–${s[1]}`).join('; ');
+      offListEl.innerHTML=`<span class="label">${label}</span>${listStr}`;
+    }else{
+      offListEl.innerHTML=`<span class="label">${label}</span>—`;
     }
   }
 
-  function renderAll() {
+  function renderEditorFields(){
+    const profile=profiles[currentProfile];
+    placeNameInput.value=profile.name || '';
+    queueInput.value=profile.queueCode || '6.2';
+    const offSlots=getDaySlots(currentProfile,currentDayKey);
+    editArea.value=offSlots.map(s=>s.join('-')).join(';');
+  }
+
+  function applyEditCollapse(){
+    editBody.style.display=(editOpen==='1')?'block':'none';
+    editHeaderToggle.textContent=(editOpen==='1')?'▾':'▸';
+  }
+
+  function renderAll(){
     renderLangTexts();
+    renderHeader();
     renderDays();
-    renderDayModeLabel();
-    renderSlots();
-    renderTimeline();
-    renderNowStatus();
-    // обновить поле очереди под текущий профиль
-    queueInput.value = profiles[currentProfile].queueCode || '6.2';
-    updateEditHeader();
-  }
-
-  // --- Редактор: сворачивание ---
-  function applyEditCollapse() {
-    editBody.style.display = (editOpen === '1') ? 'block' : 'none';
-  }
-
-  function updateEditHeader() {
-    editHeaderToggle.textContent = (editOpen === '1') ? '▾' : '▸';
-  }
-
-  editHeader.addEventListener('click', () => {
-    editOpen = (editOpen === '1') ? '0' : '1';
-    localStorage.setItem(EDIT_OPEN_KEY, editOpen);
+    renderGraph();
+    renderEditorFields();
     applyEditCollapse();
-    updateEditHeader();
-  });
-
-  // --- Импорт: парсинг текста ---
-  function extractQueueLine(text, queueCode) {
-    const pattern = new RegExp('^\\s*' + queueCode.replace('.', '\\.') + '\\s*[–-]\\s*(.+)$', 'm');
-    const match = text.match(pattern);
-    if (!match) return null;
-    return match[1].trim();
   }
 
-  function parseIntervalsFromString(intervalsStr) {
-    const parts = intervalsStr.split(';');
-    const slots = [];
-    for (const p of parts) {
-      const trimmed = p.trim();
-      if (!trimmed) continue;
-      const pieces = trimmed.split(/\s*[-–—]\s*/);
-      if (pieces.length < 2) continue;
-      let start = pieces[0].trim();
-      let end = pieces[1].trim();
-      start = start.replace(/[^\d:]/g, '');
-      end = end.replace(/[^\d:]/g, '');
-      if (!start || !end) continue;
-      // нормализуем до HH:MM (если, например, "8:0")
-      const toHHMM = v => {
-        const [hRaw, mRaw] = v.split(':');
-        let h = parseInt(hRaw, 10);
-        let m = parseInt(mRaw || '0', 10);
-        if (isNaN(h)) h = 0;
-        if (isNaN(m)) m = 0;
-        const hh = String(Math.max(0, Math.min(23, h))).padStart(2, '0');
-        const mm = String(Math.max(0, Math.min(59, m))).padStart(2, '0');
-        return hh + ':' + mm;
-      };
-      start = toHHMM(start);
-      end = toHHMM(end);
-      slots.push([start, end]);
-    }
-    return slots;
-  }
-
-  // --- Кнопки дней ---
-  days.forEach(d => {
-    const btn = document.createElement('button');
-    btn.className = 'day-btn';
-    btn.dataset.dayKey = d.key;
-    btn.addEventListener('click', () => {
-      currentDayKey = d.key;
+  days.forEach(d=>{
+    const btn=document.createElement('button');
+    btn.className='day-btn';
+    btn.dataset.dayKey=d.key;
+    btn.addEventListener('click',()=>{
+      currentDayKey=d.key;
       renderAll();
     });
     daysRow.appendChild(btn);
   });
 
-  // --- Смена языка ---
-  langButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      const lang = btn.dataset.lang;
-      if (lang === currentLang) return;
-      currentLang = lang;
-      localStorage.setItem(LANG_KEY, lang);
+  langButtons.forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const lang=btn.dataset.lang;
+      if(lang===currentLang)return;
+      currentLang=lang;
+      localStorage.setItem(LANG_KEY,lang);
       renderAll();
     });
   });
 
-  // --- Смена объекта (Дом / Работа) ---
-  locationButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      const p = btn.dataset.profile;
-      if (p === currentProfile) return;
-      currentProfile = p;
-      localStorage.setItem(PROFILE_CURRENT_KEY, currentProfile);
+  locationButtons.forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const p=btn.dataset.profile;
+      if(p===currentProfile)return;
+      currentProfile=p;
+      localStorage.setItem(PROFILE_CURRENT_KEY,p);
       renderAll();
     });
   });
 
-  // --- Сохранение графика (ручное) ---
-  saveBtn.addEventListener('click', () => {
-    const text = editArea.value.trim();
-    const parts = text ? text.split(';') : [];
-    const slots = [];
-    for (const p of parts) {
-      const trimmed = p.trim();
-      if (!trimmed) continue;
-      const pieces = trimmed.split(/\s*[-–—]\s*/);
-      if (pieces.length < 2) continue;
-      let start = pieces[0].trim();
-      let end = pieces[1].trim();
-      start = start.replace(/[^\d:]/g, '');
-      end = end.replace(/[^\d:]/g, '');
-      if (!start || !end) continue;
-      const toHHMM = v => {
-        const [hRaw, mRaw] = v.split(':');
-        let h = parseInt(hRaw, 10);
-        let m = parseInt(mRaw || '0', 10);
-        if (isNaN(h)) h = 0;
-        if (isNaN(m)) m = 0;
-        const hh = String(Math.max(0, Math.min(23, h))).padStart(2, '0');
-        const mm = String(Math.max(0, Math.min(59, m))).padStart(2, '0');
-        return hh + ':' + mm;
-      };
-      start = toHHMM(start);
-      end = toHHMM(end);
-      slots.push([start, end]);
+  editHeader.addEventListener('click',()=>{
+    editOpen = (editOpen==='1')?'0':'1';
+    localStorage.setItem(EDIT_OPEN_KEY,editOpen);
+    applyEditCollapse();
+  });
+
+  saveBtn.addEventListener('click',()=>{
+    const text=editArea.value.trim();
+    const parts=text?text.split(';'):[];
+    const slots=[];
+    const normalize=(v)=>{
+      const [hRaw,mRaw]=v.split(':');
+      let h=parseInt(hRaw,10), m=parseInt(mRaw||'0',10);
+      if(isNaN(h))h=0; if(isNaN(m))m=0;
+      return String(Math.max(0,Math.min(23,h))).padStart(2,'0')+':' +
+             String(Math.max(0,Math.min(59,m))).padStart(2,'0');
+    };
+    for(const p of parts){
+      const trimmed=p.trim();
+      if(!trimmed)continue;
+      const pieces=trimmed.split(/\s*[-–—]\s*/);
+      if(pieces.length<2)continue;
+      let start=normalize(pieces[0].trim());
+      let end=normalize(pieces[1].trim());
+      slots.push([start,end]);
     }
-    const group = isWeekendDay(currentDayKey) ? 'weekend' : 'weekday';
-    profiles[currentProfile][group] = slots;
+    profiles[currentProfile].days[currentDayKey]=slots;
     saveProfile(currentProfile);
+    renderGraph();
+    renderEditorFields();
+  });
+
+  placeNameInput.addEventListener('change',()=>{
+    const val=placeNameInput.value.trim();
+    if(!val)return;
+    profiles[currentProfile].name=val;
+    saveProfile(currentProfile);
+    renderHeader();
+  });
+
+  queueInput.addEventListener('change',()=>{
+    const val=queueInput.value.trim();
+    if(!val)return;
+    profiles[currentProfile].queueCode=val;
+    saveProfile(currentProfile);
+    renderHeader();
+  });
+
+  function extractQueueLine(text,queueCode){
+    const pattern=new RegExp('^\\s*'+queueCode.replace('.','\\.')+'\\s*[–-]\\s*(.+)$','m');
+    const match=text.match(pattern);
+    if(!match)return null;
+    return match[1].trim();
+  }
+
+  function parseIntervalsFromString(intervalsStr){
+    const parts=intervalsStr.split(';');
+    const slots=[];
+    const normalize=(v)=>{
+      const [hRaw,mRaw]=v.split(':');
+      let h=parseInt(hRaw,10), m=parseInt(mRaw||'0',10);
+      if(isNaN(h))h=0; if(isNaN(m))m=0;
+      return String(Math.max(0,Math.min(23,h))).padStart(2,'0')+':' +
+             String(Math.max(0,Math.min(59,m))).padStart(2,'0');
+    };
+    for(const p of parts){
+      const trimmed=p.trim();
+      if(!trimmed)continue;
+      const pieces=trimmed.split(/\s*[-–—]\s*/);
+      if(pieces.length<2)continue;
+      let start=normalize(pieces[0].trim());
+      let end=normalize(pieces[1].trim());
+      slots.push([start,end]);
+    }
+    return slots;
+  }
+
+  importBtn.addEventListener('click',()=>{
+    const queueCode=(importQueueSelect.value || profiles[currentProfile].queueCode || '6.2').trim();
+    const txt=importText.value.trim();
+    if(!txt)return;
+    const line=extractQueueLine(txt,queueCode);
+    if(!line){
+      importHintEl.textContent=t('import_error');
+      return;
+    }
+    const slots=parseIntervalsFromString(line);
+    if(!slots.length){
+      importHintEl.textContent=t('import_error');
+      return;
+    }
+    profiles[currentProfile].days[currentDayKey]=slots;
+    profiles[currentProfile].queueCode=queueCode;
+    saveProfile(currentProfile);
+    importText.value='';
+    importHintEl.textContent=t('import_hint');
     renderAll();
   });
 
-  // --- Изменение очереди вручную ---
-  queueInput.addEventListener('change', () => {
-    const val = queueInput.value.trim();
-    if (val) {
-      profiles[currentProfile].queueCode = val;
-      saveProfile(currentProfile);
-      renderAll();
-    }
-  });
-
-  // --- Импорт из текста ---
-  importBtn.addEventListener('click', () => {
-    const queueCode = importQueueSelect.value.trim() || profiles[currentProfile].queueCode || '6.2';
-    const txt = importText.value.trim();
-    if (!txt) return;
-
-    const line = extractQueueLine(txt, queueCode);
-    if (!line) {
-      importHintEl.textContent = t('import_error');
-      return;
-    }
-    const slots = parseIntervalsFromString(line);
-    if (!slots.length) {
-      importHintEl.textContent = t('import_error');
-      return;
-    }
-
-    const group = isWeekendDay(currentDayKey) ? 'weekend' : 'weekday';
-    profiles[currentProfile][group] = slots;
-    profiles[currentProfile].queueCode = queueCode;
-    saveProfile(currentProfile);
-
-    importHintEl.textContent = t('import_hint');
-    importText.value = '';
-    renderAll();
-  });
-
-  // Инициализация
-  applyEditCollapse();
   renderAll();
-
-  setInterval(() => {
-    renderNowStatus();
-    renderTimeline();
-  }, 60000);
 </script>
 </body>
 </html>
