@@ -95,11 +95,39 @@
       font-weight: 600;
     }
 
+    /* Переключатель объектa (Дом / Работа) */
+    .location-switch {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 8px;
+    }
+    .location-switch-inner {
+      display: inline-flex;
+      border-radius: 999px;
+      background: #151515;
+      padding: 3px;
+      gap: 4px;
+    }
+    .location-btn {
+      border: none;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      background: transparent;
+      color: #bbb;
+      min-width: 70px;
+    }
+    .location-btn.active {
+      background: #ff9500;
+      color: #000;
+      font-weight: 600;
+    }
+
     /* Кнопки дней */
     .days-row {
       display: flex;
       justify-content: space-between;
-      margin: 16px 0 8px;
+      margin: 14px 0 4px;
     }
     .day-btn {
       width: 40px;
@@ -116,40 +144,19 @@
       font-weight: 600;
     }
 
-    /* Переключатель режима (откл / свет) — для списка */
-    .mode-switch {
-      display: flex;
-      justify-content: center;
+    .day-mode-label {
+      font-size: 11px;
+      color: #777;
       margin-bottom: 10px;
     }
-    .mode-switch-inner {
-      display: inline-flex;
-      border-radius: 999px;
-      background: #151515;
-      padding: 3px;
-      gap: 4px;
-    }
-    .mode-btn {
-      border: none;
-      padding: 4px 10px;
-      border-radius: 999px;
-      font-size: 12px;
-      background: transparent;
-      color: #bbb;
-      min-width: 70px;
-    }
-    .mode-btn.active {
-      background: #ff9500;
-      color: #000;
-      font-weight: 600;
-    }
 
-    /* Карточка расписания (список интервалов) */
+    /* Карточка расписания (список интервалов ОТКЛЮЧЕНИЯ) */
     .card {
       background: #111;
       border-radius: 18px;
       padding: 8px 0 6px;
       overflow: hidden;
+      margin-top: 12px;
     }
     .slot-row {
       display: flex;
@@ -165,7 +172,7 @@
       background: #262626;
     }
     .slot-time {
-      color: #ffb84d; /* жёлтый – и для отключений, и для "есть свет" */
+      color: #ffb84d;
     }
     .slot-duration {
       color: #aaa;
@@ -178,7 +185,7 @@
 
     /* Лента "как в Світло" */
     .timeline {
-      margin-top: 14px;
+      margin-top: 10px;
       padding: 10px 12px 8px;
       border-radius: 16px;
       background: #111;
@@ -203,10 +210,10 @@
     }
     .timeline-segment {
       flex: 1;
-      background: #333;  /* нет света */
+      background: #333;  /* нет электроэнергии */
     }
     .timeline-segment.on {
-      background: #ffb84d; /* есть свет */
+      background: #ffb84d; /* есть электроэнергия */
     }
     .timeline-segment.now {
       outline: 2px solid #ffffff;
@@ -238,23 +245,43 @@
       font-weight: 600;
     }
 
-    .footer-note {
-      margin-top: 10px;
-      font-size: 12px;
-      color: #777;
-    }
-
+    /* Редактор (сворачиваемый) */
     .edit-block {
       margin-top: 18px;
-      padding: 12px 14px;
       border-radius: 14px;
       background: #111;
       font-size: 13px;
+      overflow: hidden;
     }
-    .edit-block textarea {
+    .edit-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 14px;
+      cursor: pointer;
+    }
+    .edit-header-title {
+      font-weight: 600;
+    }
+    .edit-header-toggle {
+      font-size: 14px;
+      color: #aaa;
+    }
+    .edit-body {
+      padding: 0 14px 12px;
+      display: none; /* по умолчанию скрыто */
+    }
+    .edit-note {
+      margin-top: 4px;
+      font-size: 12px;
+      color: #888;
+    }
+    .edit-title {
+      margin-top: 10px;
+      font-size: 13px;
+    }
+    .edit-body textarea {
       width: 100%;
-      min-height: 80px;
-      margin-top: 6px;
       border-radius: 10px;
       border: 1px solid #333;
       padding: 8px;
@@ -263,8 +290,9 @@
       font-size: 13px;
       font-family: monospace;
       resize: vertical;
+      margin-top: 6px;
     }
-    .edit-block button {
+    .edit-body button {
       margin-top: 8px;
       padding: 6px 10px;
       border-radius: 999px;
@@ -274,6 +302,61 @@
       font-weight: 600;
       font-size: 13px;
       cursor: pointer;
+    }
+    .edit-config {
+      margin-top: 10px;
+      font-size: 13px;
+    }
+    .edit-config input {
+      margin-left: 6px;
+      max-width: 80px;
+      padding: 3px 6px;
+      border-radius: 8px;
+      border: 1px solid #333;
+      background: #000;
+      color: #f5f5f5;
+      font-size: 13px;
+    }
+
+    .import-block {
+      margin-top: 12px;
+      border-top: 1px solid #222;
+      padding-top: 8px;
+      font-size: 13px;
+    }
+    .import-title {
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .import-controls {
+      margin-bottom: 4px;
+    }
+    .import-controls select {
+      margin-left: 6px;
+      padding: 3px 6px;
+      border-radius: 8px;
+      border: 1px solid #333;
+      background: #000;
+      color: #f5f5f5;
+      font-size: 13px;
+    }
+    .import-text {
+      width: 100%;
+      min-height: 70px;
+      border-radius: 10px;
+      border: 1px solid #333;
+      padding: 6px;
+      background: #000;
+      color: #f5f5f5;
+      font-size: 12px;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      resize: vertical;
+      margin-top: 4px;
+    }
+    .import-hint {
+      margin-top: 4px;
+      font-size: 11px;
+      color: #888;
     }
   </style>
 </head>
@@ -294,16 +377,15 @@
     </div>
   </div>
 
-  <div class="days-row" id="daysRow"></div>
-
-  <div class="mode-switch">
-    <div class="mode-switch-inner">
-      <button class="mode-btn" data-mode="off">Отключения</button>
-      <button class="mode-btn" data-mode="on">Есть свет</button>
+  <div class="location-switch">
+    <div class="location-switch-inner">
+      <button class="location-btn" data-profile="home"></button>
+      <button class="location-btn" data-profile="work"></button>
     </div>
   </div>
 
-  <div class="card" id="slotsContainer"></div>
+  <div class="days-row" id="daysRow"></div>
+  <div class="day-mode-label" id="dayModeLabel"></div>
 
   <div class="timeline" id="timelineBlock">
     <div class="timeline-header-row">
@@ -316,14 +398,55 @@
     <div class="timeline-legend" id="timelineLegend"></div>
   </div>
 
+  <div class="card" id="slotsContainer"></div>
+
   <div class="now-status" id="nowStatus"></div>
 
-  <div class="footer-note" id="footerNote"></div>
-
   <div class="edit-block">
-    <div id="editTitle"></div>
-    <textarea id="editArea"></textarea>
-    <button id="saveBtn"></button>
+    <div class="edit-header" id="editHeader">
+      <div class="edit-header-title" id="editHeaderTitle"></div>
+      <div class="edit-header-toggle" id="editHeaderToggle">▸</div>
+    </div>
+    <div class="edit-body" id="editBody">
+      <div class="edit-note" id="editNote"></div>
+
+      <div class="edit-title" id="editTitle"></div>
+      <textarea id="editArea"></textarea>
+      <button id="saveBtn"></button>
+
+      <div class="edit-config">
+        <label id="queueLabel">
+          Очередь:
+          <input id="queueInput" type="text" placeholder="6.2">
+        </label>
+      </div>
+
+      <div class="import-block">
+        <div class="import-title" id="importTitle"></div>
+        <div class="import-controls">
+          <label id="importQueueLabel">
+            Очередь:
+            <select id="importQueueSelect">
+              <option value="1.1">1.1</option>
+              <option value="1.2">1.2</option>
+              <option value="2.1">2.1</option>
+              <option value="2.2">2.2</option>
+              <option value="3.1">3.1</option>
+              <option value="3.2">3.2</option>
+              <option value="4.1">4.1</option>
+              <option value="4.2">4.2</option>
+              <option value="5.1">5.1</option>
+              <option value="5.2">5.2</option>
+              <option value="6.1">6.1</option>
+              <option value="6.2">6.2</option>
+            </select>
+          </label>
+        </div>
+        <textarea id="importText" class="import-text" placeholder=""></textarea>
+        <button id="importBtn"></button>
+        <div class="import-hint" id="importHint"></div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -332,8 +455,8 @@
   const i18n = {
     ru: {
       title_home: 'Дом',
+      title_work: 'Работа',
       region: 'Николаевская обл.',
-      queue_badge: 'Очередь 6.2',
       day_mon: 'Пн',
       day_tue: 'Вт',
       day_wed: 'Ср',
@@ -341,25 +464,34 @@
       day_fri: 'Пт',
       day_sat: 'Сб',
       day_sun: 'Вс',
-      footer_note: 'График хранится только на этом устройстве (localStorage). Формат: HH:MM-HH:MM;HH:MM-HH:MM',
-      edit_title: 'Редактировать график для выбранного дня:',
-      save_btn: 'Сохранить для дня',
-      slot_label_off: 'отключение',
-      slot_label_on: 'есть свет',
+      footer_note: 'Формат: HH:MM-HH:MM;HH:MM-HH:MM. Редактируется график ОТКЛЮЧЕНИЯ электроэнергии для выбранного дня (будни/выходные).',
+      edit_header: 'Редактирование графика',
+      edit_title: 'Интервалы отключения электроэнергии (ручное редактирование):',
+      save_btn: 'Сохранить',
+      slot_label_off: 'нет электроэнергии',
+      slot_label_on: 'есть электроэнергия',
       now_loading: 'Загрузка…',
       now_prefix: 'Сейчас',
-      now_off: 'МОЖЕТ НЕ БЫТЬ СВЕТА',
-      now_ok: 'вне графика отключений',
+      now_off: 'МОЖЕТ НЕ БЫТЬ ЭЛЕКТРОЭНЕРГИИ',
+      now_ok: 'электроэнергия есть по графику',
       now_time: 'время',
-      mode_off: 'Отключения',
-      mode_on: 'Есть свет',
-      tl_title: 'Сутки: жёлтым — когда есть свет',
-      tl_legend: 'Жёлтый — есть свет, серый — нет света',
+      tl_title: 'Сутки: жёлтым — когда есть электроэнергия',
+      tl_legend: 'Жёлтый — есть электроэнергия, серый — нет электроэнергии',
+      location_home: 'Дом',
+      location_work: 'Работа',
+      day_mode_prefix: 'Режим: ',
+      weekday_label: 'будни',
+      weekend_label: 'выходные',
+      import_title: 'Импорт графика из текста',
+      import_hint: 'Вставьте сюда сообщение с полным расписанием, выберите очередь и нажмите «Импортировать». Будет обновлён текущий режим (будни/выходные) для выбранного объекта.',
+      import_button: 'Импортировать',
+      import_error: 'Не удалось найти выбранную очередь в тексте.',
+      queue_label: 'Очередь',
     },
     uk: {
       title_home: 'Дім',
+      title_work: 'Робота',
       region: 'Миколаївська обл.',
-      queue_badge: 'Черга 6.2',
       day_mon: 'Пн',
       day_tue: 'Вт',
       day_wed: 'Ср',
@@ -367,26 +499,37 @@
       day_fri: 'Пт',
       day_sat: 'Сб',
       day_sun: 'Нд',
-      footer_note: 'Графік зберігається тільки на цьому пристрої (localStorage). Формат: HH:MM-HH:MM;HH:MM-HH:MM',
-      edit_title: 'Редагувати графік для обраного дня:',
-      save_btn: 'Зберегти для дня',
-      slot_label_off: 'відключення',
-      slot_label_on: 'є світло',
+      footer_note: 'Формат: HH:MM-HH:MM;HH:MM-HH:MM. Редагується графік ВІДКЛЮЧЕННЯ електроенергії для обраного дня (будні/вихідні).',
+      edit_header: 'Редагування графіка',
+      edit_title: 'Інтервали відключення електроенергії (ручне редагування):',
+      save_btn: 'Зберегти',
+      slot_label_off: 'немає електроенергії',
+      slot_label_on: 'є електроенергія',
       now_loading: 'Завантаження…',
       now_prefix: 'Зараз',
-      now_off: 'МОЖЕ НЕ БУТИ СВІТЛА',
-      now_ok: 'поза графіком відключень',
+      now_off: 'МОЖЕ НЕ БУТИ ЕЛЕКТРОЕНЕРГІЇ',
+      now_ok: 'електроенергія є за графіком',
       now_time: 'час',
-      mode_off: 'Відключення',
-      mode_on: 'Є світло',
-      tl_title: 'Доба: жовтим — коли є світло',
-      tl_legend: 'Жовтий — є світло, сірий — немає світла',
+      tl_title: 'Доба: жовтим — коли є електроенергія',
+      tl_legend: 'Жовтий — є електроенергія, сірий — немає електроенергії',
+      location_home: 'Дім',
+      location_work: 'Робота',
+      day_mode_prefix: 'Режим: ',
+      weekday_label: 'будні',
+      weekend_label: 'вихідні',
+      import_title: 'Імпорт графіка з тексту',
+      import_hint: 'Вставте сюди повідомлення з повним розкладом, оберіть чергу і натисніть «Імпортувати». Буде оновлено поточний режим (будні/вихідні) для обраного об’єкта.',
+      import_button: 'Імпортувати',
+      import_error: 'Не вдалося знайти обрану чергу в тексті.',
+      queue_label: 'Черга',
     }
   };
 
-  const STORAGE_KEY = 'offlight_schedule_62';
+  const PROFILES = ['home', 'work'];
+  const PROFILE_KEY_PREFIX = 'offlight_profile_';
+  const PROFILE_CURRENT_KEY = 'offlight_profile_current';
   const LANG_KEY = 'offlight_lang';
-  const MODE_KEY = 'offlight_mode';
+  const EDIT_OPEN_KEY = 'offlight_edit_open';
 
   const days = [
     {key: 'mon', labelKey: 'day_mon'},
@@ -405,7 +548,9 @@
   ];
 
   let currentLang = localStorage.getItem(LANG_KEY) || 'ru';
-  let currentMode = localStorage.getItem(MODE_KEY) || 'off'; // 'off' или 'on'
+  let profiles = {};
+  let currentProfile = localStorage.getItem(PROFILE_CURRENT_KEY) || 'home';
+  if (!PROFILES.includes(currentProfile)) currentProfile = 'home';
 
   function t(key) {
     return (i18n[currentLang] && i18n[currentLang][key])
@@ -426,43 +571,75 @@
     }
   }
 
-  function loadSchedule() {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) {
-      const obj = {};
-      days.forEach(d => obj[d.key] = defaultDaySlots.slice());
-      return obj;
-    }
+  function isWeekendDay(dayKey) {
+    return dayKey === 'sat' || dayKey === 'sun';
+  }
+
+  function defaultProfileData() {
+    return {
+      weekday: defaultDaySlots.slice(),
+      weekend: defaultDaySlots.slice(),
+      queueCode: '6.2',
+    };
+  }
+
+  function loadProfile(profile) {
+    const raw = localStorage.getItem(PROFILE_KEY_PREFIX + profile);
+    if (!raw) return defaultProfileData();
     try {
       const parsed = JSON.parse(raw);
-      days.forEach(d => {
-        if (!Array.isArray(parsed[d.key])) parsed[d.key] = defaultDaySlots.slice();
-      });
+      if (!Array.isArray(parsed.weekday)) parsed.weekday = defaultDaySlots.slice();
+      if (!Array.isArray(parsed.weekend)) parsed.weekend = defaultDaySlots.slice();
+      if (!parsed.queueCode) parsed.queueCode = '6.2';
       return parsed;
     } catch (e) {
-      const obj = {};
-      days.forEach(d => obj[d.key] = defaultDaySlots.slice());
-      return obj;
+      return defaultProfileData();
     }
   }
 
-  function saveSchedule(schedule) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(schedule));
+  function saveProfile(profile) {
+    localStorage.setItem(PROFILE_KEY_PREFIX + profile, JSON.stringify(profiles[profile]));
   }
 
-  let schedule = loadSchedule();
-  let currentDayKey = getTodayKey();
+  PROFILES.forEach(p => {
+    profiles[p] = loadProfile(p);
+  });
 
+  let currentDayKey = getTodayKey();
+  let editOpen = localStorage.getItem(EDIT_OPEN_KEY) || '0';
+
+  // DOM элементы
+  const titleHomeEl = document.getElementById('titleHome');
+  const subtitleRegionEl = document.getElementById('subtitleRegion');
+  const queueBadgeEl = document.getElementById('queueBadge');
   const daysRow = document.getElementById('daysRow');
+  const dayModeLabelEl = document.getElementById('dayModeLabel');
   const slotsContainer = document.getElementById('slotsContainer');
   const nowStatus = document.getElementById('nowStatus');
-  const footerNote = document.getElementById('footerNote');
-  const editTitle = document.getElementById('editTitle');
-  const editArea = document.getElementById('editArea');
-  const saveBtn = document.getElementById('saveBtn');
   const timelineBar = document.getElementById('timelineBar');
   const timelineTitle = document.getElementById('timelineTitle');
   const timelineLegend = document.getElementById('timelineLegend');
+
+  const editHeader = document.getElementById('editHeader');
+  const editHeaderTitle = document.getElementById('editHeaderTitle');
+  const editHeaderToggle = document.getElementById('editHeaderToggle');
+  const editBody = document.getElementById('editBody');
+  const editNoteEl = document.getElementById('editNote');
+  const editTitleEl = document.getElementById('editTitle');
+  const editArea = document.getElementById('editArea');
+  const saveBtn = document.getElementById('saveBtn');
+  const queueInput = document.getElementById('queueInput');
+
+  const importTitleEl = document.getElementById('importTitle');
+  const importQueueSelect = document.getElementById('importQueueSelect');
+  const importText = document.getElementById('importText');
+  const importBtn = document.getElementById('importBtn');
+  const importHintEl = document.getElementById('importHint');
+  const queueLabelEl = document.getElementById('queueLabel');
+  const importQueueLabelEl = document.getElementById('importQueueLabel');
+
+  const langButtons = document.querySelectorAll('.lang-btn');
+  const locationButtons = document.querySelectorAll('.location-btn');
 
   function parseTimeToMinutes(t) {
     const [h, m] = t.split(':').map(Number);
@@ -509,66 +686,21 @@
     return minutesNow >= s && minutesNow <= e;
   }
 
-  // Перевод списка отключений в список "есть свет"
-  function getOnSlots(offSlots) {
-    // Разворачиваем интервалы, учитывая переход через полночь
-    let intervals = [];
-    offSlots.forEach(([start, end]) => {
-      let s = parseTimeToMinutes(start);
-      let e = parseTimeToMinutes(end);
-      if (e <= s) {
-        // пересечение полуночи: [s, 1440) и [0, e)
-        intervals.push([s, 1440]);
-        intervals.push([0, e]);
-      } else {
-        intervals.push([s, e]);
-      }
-    });
-
-    // Сливаем перекрывающиеся интервалы
-    intervals.sort((a, b) => a[0] - b[0]);
-    let merged = [];
-    for (const [s, e] of intervals) {
-      if (!merged.length) {
-        merged.push([s, e]);
-      } else {
-        const last = merged[merged.length - 1];
-        if (s <= last[1]) {
-          last[1] = Math.max(last[1], e);
-        } else {
-          merged.push([s, e]);
-        }
-      }
-    }
-
-    // Строим "свет" как дополнение к 0..1440
-    let on = [];
-    let cur = 0;
-    for (const [s, e] of merged) {
-      if (s > cur) {
-        on.push([cur, s]);
-      }
-      cur = Math.max(cur, e);
-    }
-    if (cur < 1440) {
-      on.push([cur, 1440]);
-    }
-
-    // Переводим назад в HH:MM
-    return on.map(([s, e]) => [minutesToTime(s), minutesToTime(e === 1440 ? 1439 : e)]);
+  function getProfileSlots(profileKey, dayKey) {
+    const profile = profiles[profileKey];
+    const group = isWeekendDay(dayKey) ? 'weekend' : 'weekday';
+    return profile[group] || [];
   }
 
   // Лента "как в Світло" — 24 сегмента по часам
   function renderTimeline() {
-    const offSlots = schedule[currentDayKey] || [];
+    const offSlots = getProfileSlots(currentProfile, currentDayKey);
     const minutesOff = new Array(1440).fill(false);
 
-    // заполняем минуты, где НЕТ света
     offSlots.forEach(([start, end]) => {
       let s = parseTimeToMinutes(start);
       let e = parseTimeToMinutes(end);
       if (e <= s) {
-        // через полночь
         for (let m = s; m < 1440; m++) minutesOff[m] = true;
         for (let m = 0; m < e; m++) minutesOff[m] = true;
       } else {
@@ -596,16 +728,23 @@
   }
 
   function renderLangTexts() {
-    document.getElementById('titleHome').textContent = t('title_home');
-    document.getElementById('subtitleRegion').textContent = t('region');
-    document.getElementById('queueBadge').textContent = t('queue_badge');
-    footerNote.innerHTML = t('footer_note');
-    editTitle.textContent = t('edit_title');
-    saveBtn.textContent = t('save_btn');
-    nowStatus.textContent = t('now_loading');
+    const titleKey = currentProfile === 'home' ? 'title_home' : 'title_work';
+    titleHomeEl.textContent = t(titleKey);
+    subtitleRegionEl.textContent = t('region');
 
-    document.querySelectorAll('.lang-btn').forEach(btn => {
+    const queueCode = profiles[currentProfile].queueCode || '6.2';
+    const queuePrefix = currentLang === 'ru' ? t('queue_label') : t('queue_label');
+    queueBadgeEl.textContent = queuePrefix + ' ' + queueCode;
+
+    langButtons.forEach(btn => {
       btn.classList.toggle('active', btn.dataset.lang === currentLang);
+    });
+
+    locationButtons.forEach(btn => {
+      const p = btn.dataset.profile;
+      const txtKey = p === 'home' ? 'location_home' : 'location_work';
+      btn.textContent = t(txtKey);
+      btn.classList.toggle('active', p === currentProfile);
     });
 
     document.querySelectorAll('.day-btn').forEach(btn => {
@@ -614,14 +753,16 @@
       btn.textContent = t(d.labelKey);
     });
 
-    document.querySelectorAll('.mode-btn').forEach(btn => {
-      const mode = btn.dataset.mode;
-      const key = mode === 'off' ? 'mode_off' : 'mode_on';
-      btn.textContent = t(key);
-      btn.classList.toggle('active', mode === currentMode);
-    });
+    editHeaderTitle.textContent = t('edit_header');
+    editNoteEl.textContent = t('footer_note');
+    editTitleEl.textContent = t('edit_title');
+    saveBtn.textContent = t('save_btn');
+    queueLabelEl.childNodes[0].nodeValue = t('queue_label') + ': ';
+    importTitleEl.textContent = t('import_title');
+    importQueueLabelEl.childNodes[0].nodeValue = t('queue_label') + ': ';
+    importBtn.textContent = t('import_button');
+    importHintEl.textContent = t('import_hint');
 
-    // заголовки/легенда ленты
     timelineTitle.textContent = t('tl_title');
     timelineLegend.textContent = t('tl_legend');
   }
@@ -632,22 +773,17 @@
     });
   }
 
+  function renderDayModeLabel() {
+    const weekend = isWeekendDay(currentDayKey);
+    const labelKey = weekend ? 'weekend_label' : 'weekday_label';
+    dayModeLabelEl.textContent = t('day_mode_prefix') + t(labelKey);
+  }
+
   function renderSlots() {
-    const offSlots = schedule[currentDayKey] || [];
-    let slotsToShow;
-    let labelKey;
-
-    if (currentMode === 'off') {
-      slotsToShow = offSlots;
-      labelKey = 'slot_label_off';
-    } else {
-      slotsToShow = getOnSlots(offSlots);
-      labelKey = 'slot_label_on';
-    }
-
+    const offSlots = getProfileSlots(currentProfile, currentDayKey);
     slotsContainer.innerHTML = '';
 
-    slotsToShow.forEach(([start, end]) => {
+    offSlots.forEach(([start, end]) => {
       const row = document.createElement('div');
       const current = isNowInSlot(start, end);
       row.className = 'slot-row' + (current ? ' current' : '');
@@ -657,20 +793,21 @@
 
       const right = document.createElement('div');
       right.innerHTML = `<div class="slot-duration">${formatDuration(start, end)}</div>
-                         <div class="slot-label">${t(labelKey)}</div>`;
+                         <div class="slot-label">${t('slot_label_off')}</div>`;
 
       row.appendChild(left);
       row.appendChild(right);
       slotsContainer.appendChild(row);
     });
 
-    // В поле редактирования всегда показываем ОТКЛЮЧЕНИЯ, как раньше
+    // в редакторе всегда показываем отключения
     editArea.value = offSlots.map(s => s.join('-')).join(';');
   }
 
   function renderNowStatus() {
     const now = new Date();
-    const slotsToday = schedule[getTodayKey()] || [];
+    const todayKey = getTodayKey();
+    const slotsToday = getProfileSlots(currentProfile, todayKey);
     let inSlot = false;
     let currentSlot = null;
     for (const [start, end] of slotsToday) {
@@ -681,7 +818,7 @@
       }
     }
     const timeStr = now.toTimeString().slice(0, 5);
-    if (inSlot) {
+    if (inSlot && currentSlot) {
       nowStatus.innerHTML =
         `${t('now_prefix')} <span>${t('now_off')}</span> (${currentSlot[0]}–${currentSlot[1]}), ${t('now_time')} ${timeStr}`;
     } else {
@@ -693,12 +830,71 @@
   function renderAll() {
     renderLangTexts();
     renderDays();
+    renderDayModeLabel();
     renderSlots();
     renderTimeline();
     renderNowStatus();
+    // обновить поле очереди под текущий профиль
+    queueInput.value = profiles[currentProfile].queueCode || '6.2';
+    updateEditHeader();
   }
 
-  // Кнопки дней
+  // --- Редактор: сворачивание ---
+  function applyEditCollapse() {
+    editBody.style.display = (editOpen === '1') ? 'block' : 'none';
+  }
+
+  function updateEditHeader() {
+    editHeaderToggle.textContent = (editOpen === '1') ? '▾' : '▸';
+  }
+
+  editHeader.addEventListener('click', () => {
+    editOpen = (editOpen === '1') ? '0' : '1';
+    localStorage.setItem(EDIT_OPEN_KEY, editOpen);
+    applyEditCollapse();
+    updateEditHeader();
+  });
+
+  // --- Импорт: парсинг текста ---
+  function extractQueueLine(text, queueCode) {
+    const pattern = new RegExp('^\\s*' + queueCode.replace('.', '\\.') + '\\s*[–-]\\s*(.+)$', 'm');
+    const match = text.match(pattern);
+    if (!match) return null;
+    return match[1].trim();
+  }
+
+  function parseIntervalsFromString(intervalsStr) {
+    const parts = intervalsStr.split(';');
+    const slots = [];
+    for (const p of parts) {
+      const trimmed = p.trim();
+      if (!trimmed) continue;
+      const pieces = trimmed.split(/\s*[-–—]\s*/);
+      if (pieces.length < 2) continue;
+      let start = pieces[0].trim();
+      let end = pieces[1].trim();
+      start = start.replace(/[^\d:]/g, '');
+      end = end.replace(/[^\d:]/g, '');
+      if (!start || !end) continue;
+      // нормализуем до HH:MM (если, например, "8:0")
+      const toHHMM = v => {
+        const [hRaw, mRaw] = v.split(':');
+        let h = parseInt(hRaw, 10);
+        let m = parseInt(mRaw || '0', 10);
+        if (isNaN(h)) h = 0;
+        if (isNaN(m)) m = 0;
+        const hh = String(Math.max(0, Math.min(23, h))).padStart(2, '0');
+        const mm = String(Math.max(0, Math.min(59, m))).padStart(2, '0');
+        return hh + ':' + mm;
+      };
+      start = toHHMM(start);
+      end = toHHMM(end);
+      slots.push([start, end]);
+    }
+    return slots;
+  }
+
+  // --- Кнопки дней ---
   days.forEach(d => {
     const btn = document.createElement('button');
     btn.className = 'day-btn';
@@ -710,8 +906,8 @@
     daysRow.appendChild(btn);
   });
 
-  // Смена языка
-  document.querySelectorAll('.lang-btn').forEach(btn => {
+  // --- Смена языка ---
+  langButtons.forEach(btn => {
     btn.addEventListener('click', () => {
       const lang = btn.dataset.lang;
       if (lang === currentLang) return;
@@ -721,18 +917,18 @@
     });
   });
 
-  // Смена режима (Отключения / Есть свет) — влияет только на список
-  document.querySelectorAll('.mode-btn').forEach(btn => {
+  // --- Смена объекта (Дом / Работа) ---
+  locationButtons.forEach(btn => {
     btn.addEventListener('click', () => {
-      const mode = btn.dataset.mode;
-      if (mode === currentMode) return;
-      currentMode = mode;
-      localStorage.setItem(MODE_KEY, mode);
+      const p = btn.dataset.profile;
+      if (p === currentProfile) return;
+      currentProfile = p;
+      localStorage.setItem(PROFILE_CURRENT_KEY, currentProfile);
       renderAll();
     });
   });
 
-  // Сохранение графика (редактируем всегда ОТКЛЮЧЕНИЯ)
+  // --- Сохранение графика (ручное) ---
   saveBtn.addEventListener('click', () => {
     const text = editArea.value.trim();
     const parts = text ? text.split(';') : [];
@@ -740,16 +936,74 @@
     for (const p of parts) {
       const trimmed = p.trim();
       if (!trimmed) continue;
-      const [start, end] = trimmed.split('-').map(x => x.trim());
+      const pieces = trimmed.split(/\s*[-–—]\s*/);
+      if (pieces.length < 2) continue;
+      let start = pieces[0].trim();
+      let end = pieces[1].trim();
+      start = start.replace(/[^\d:]/g, '');
+      end = end.replace(/[^\d:]/g, '');
       if (!start || !end) continue;
+      const toHHMM = v => {
+        const [hRaw, mRaw] = v.split(':');
+        let h = parseInt(hRaw, 10);
+        let m = parseInt(mRaw || '0', 10);
+        if (isNaN(h)) h = 0;
+        if (isNaN(m)) m = 0;
+        const hh = String(Math.max(0, Math.min(23, h))).padStart(2, '0');
+        const mm = String(Math.max(0, Math.min(59, m))).padStart(2, '0');
+        return hh + ':' + mm;
+      };
+      start = toHHMM(start);
+      end = toHHMM(end);
       slots.push([start, end]);
     }
-    schedule[currentDayKey] = slots;
-    saveSchedule(schedule);
+    const group = isWeekendDay(currentDayKey) ? 'weekend' : 'weekday';
+    profiles[currentProfile][group] = slots;
+    saveProfile(currentProfile);
     renderAll();
   });
 
+  // --- Изменение очереди вручную ---
+  queueInput.addEventListener('change', () => {
+    const val = queueInput.value.trim();
+    if (val) {
+      profiles[currentProfile].queueCode = val;
+      saveProfile(currentProfile);
+      renderAll();
+    }
+  });
+
+  // --- Импорт из текста ---
+  importBtn.addEventListener('click', () => {
+    const queueCode = importQueueSelect.value.trim() || profiles[currentProfile].queueCode || '6.2';
+    const txt = importText.value.trim();
+    if (!txt) return;
+
+    const line = extractQueueLine(txt, queueCode);
+    if (!line) {
+      importHintEl.textContent = t('import_error');
+      return;
+    }
+    const slots = parseIntervalsFromString(line);
+    if (!slots.length) {
+      importHintEl.textContent = t('import_error');
+      return;
+    }
+
+    const group = isWeekendDay(currentDayKey) ? 'weekend' : 'weekday';
+    profiles[currentProfile][group] = slots;
+    profiles[currentProfile].queueCode = queueCode;
+    saveProfile(currentProfile);
+
+    importHintEl.textContent = t('import_hint');
+    importText.value = '';
+    renderAll();
+  });
+
+  // Инициализация
+  applyEditCollapse();
   renderAll();
+
   setInterval(() => {
     renderNowStatus();
     renderTimeline();
