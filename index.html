@@ -312,7 +312,7 @@
     }
     .edit-config input {
       margin-left: 6px;
-      max-width: 140px;
+      max-width: 220px;
       padding: 3px 6px;
       border-radius: 8px;
       border: 1px solid #333;
@@ -417,13 +417,25 @@
       <button id="saveBtn"></button>
 
       <div class="edit-config">
+        <label id="profileLabelLabel">
+          Название профиля (кнопки):
+          <input id="profileLabelInput" type="text" placeholder="Дом">
+        </label>
         <label id="placeNameLabel">
           Название места:
-          <input id="placeNameInput" type="text" placeholder="Дом">
+          <input id="placeNameInput" type="text" placeholder="Квартира">
         </label>
         <label id="queueLabel">
           Очередь:
           <input id="queueInput" type="text" placeholder="6.2">
+        </label>
+        <label id="cityLabel">
+          Город:
+          <input id="cityInput" type="text" placeholder="Николаев">
+        </label>
+        <label id="regionLabel">
+          Область:
+          <input id="regionInput" type="text" placeholder="Николаевская обл.">
         </label>
       </div>
 
@@ -476,8 +488,11 @@
       edit_note: 'Формат: HH:MM-HH:MM;HH:MM-HH:MM. Редактируется график ОТКЛЮЧЕНИЯ электроэнергии для выбранного дня.',
       edit_title: 'Интервалы отключения электроэнергии (ручное редактирование):',
       save_btn: 'Сохранить',
+      profile_label_label: 'Название профиля (кнопки)',
       place_name_label: 'Название места',
       queue_label: 'Очередь',
+      city_label: 'Город',
+      region_label: 'Область',
       import_title: 'Импорт графика из текста',
       import_hint: 'Вставьте сюда сообщение с полным расписанием, выберите очередь и нажмите «Импортировать».',
       import_button: 'Импортировать',
@@ -505,9 +520,12 @@
       edit_note: 'Формат: HH:MM-HH:MM;HH:MM-HH:MM. Редагується графік ВІДКЛЮЧЕННЯ електроенергії для обраного дня.',
       edit_title: 'Інтервали відключення електроенергії (ручне редагування):',
       save_btn: 'Зберегти',
+      profile_label_label: 'Назва профілю (кнопки)',
       place_name_label: 'Назва місця',
       queue_label: 'Черга',
-      import_title: 'Імпорт графіка з тексту',
+      city_label: 'Місто',
+      region_label: 'Область',
+      import_title: 'Імпорт графіку з тексту',
       import_hint: 'Вставте сюди повідомлення з повним розкладом, оберіть чергу та натисніть «Імпортувати».',
       import_button: 'Імпортувати',
       import_error: 'Не вдалося знайти обрану чергу в тексті.',
@@ -519,10 +537,13 @@
   };
 
   const PROFILES = ['home', 'work'];
-  const PROFILE_KEY_PREFIX = 'off_profile_';
+  // ВАЖНО: новый префикс, чтобы не тянуть старый мусор
+  const PROFILE_KEY_PREFIX = 'off2_profile_';
   const PROFILE_CURRENT_KEY = 'off_profile_current';
   const LANG_KEY = 'off_lang';
   const EDIT_OPEN_KEY = 'off_edit_open';
+  const CITY_KEY = 'off_city';
+  const REGION_KEY = 'off_region';
 
   const days = [
     {key: 'mon', labelKey: 'day_mon'},
@@ -542,6 +563,9 @@
   let currentProfile = localStorage.getItem(PROFILE_CURRENT_KEY) || 'home';
   if (!PROFILES.includes(currentProfile)) currentProfile = 'home';
 
+  let globalCity = localStorage.getItem(CITY_KEY) || '';
+  let globalRegion = localStorage.getItem(REGION_KEY) || '';
+
   function t(key){
     return (i18n[currentLang] && i18n[currentLang][key]) ||
            (i18n['ru'] && i18n['ru'][key]) || key;
@@ -551,46 +575,14 @@
     return { slots: defaultDaySlots.slice(), updatedAt: null };
   }
 
-  const legacyDefaultSlots = [
-    ['00:00','01:00'],
-    ['08:00','15:00'],
-    ['18:30','22:00'],
-  ];
-
-  function isLegacyDefaultSlots(slots) {
-    if (!Array.isArray(slots) || slots.length !== 3) return false;
-    const p = legacyDefaultSlots;
-    for (let i = 0; i < 3; i++) {
-      if (!Array.isArray(slots[i]) || slots[i].length < 2) return false;
-      if (slots[i][0] !== p[i][0] || slots[i][1] !== p[i][1]) return false;
-    }
-    return true;
-  }
-
   function normalizeDayData(v){
-    // Старый формат: просто массив слотов без updatedAt
+    // Старый формат: просто массив слотов
     if (Array.isArray(v)) {
-      const slots = v;
-      // Если это старый дефолт (00–01; 08–15; 18:30–22:00) — считаем пустым
-      if (isLegacyDefaultSlots(slots)) {
-        return { slots: [], updatedAt: null };
-      }
-      // Если пользователь реально менял — оставляем
-      return { slots, updatedAt: null };
+      return { slots: v, updatedAt: null };
     }
-
     // Новый формат
     if (!v || !Array.isArray(v.slots)) return defaultDayData();
-
-    let slots = v.slots;
-    let updatedAt = v.updatedAt || null;
-
-    // Если updatedAt ещё нет, а слоты всё ещё старый дефолт — чистим
-    if (!updatedAt && isLegacyDefaultSlots(slots)) {
-      slots = [];
-    }
-
-    return { slots, updatedAt };
+    return { slots: v.slots, updatedAt: v.updatedAt || null };
   }
 
   function defaultProfileData(profileKey){
@@ -600,6 +592,7 @@
     });
     return {
       name: profileKey === 'home' ? t('place_home_default') : t('place_work_default'),
+      profileLabel: profileKey === 'home' ? t('location_home') : t('location_work'),
       queueCode: '6.2',
       days: daysObj
     };
@@ -612,6 +605,9 @@
       const parsed = JSON.parse(raw);
       if(!parsed.name) parsed.name = defaultProfileData(profileKey).name;
       if(!parsed.queueCode) parsed.queueCode = '6.2';
+      if(!parsed.profileLabel) {
+        parsed.profileLabel = profileKey === 'home' ? t('location_home') : t('location_work');
+      }
       if(!parsed.days) parsed.days = {};
       const daysObj = {};
       days.forEach(d => {
@@ -666,10 +662,16 @@
   const editTitleEl = document.getElementById('editTitle');
   const editArea = document.getElementById('editArea');
   const saveBtn = document.getElementById('saveBtn');
+  const profileLabelInput = document.getElementById('profileLabelInput');
   const placeNameInput = document.getElementById('placeNameInput');
   const queueInput = document.getElementById('queueInput');
+  const cityInput = document.getElementById('cityInput');
+  const regionInput = document.getElementById('regionInput');
+  const profileLabelLabel = document.getElementById('profileLabelLabel');
   const placeNameLabel = document.getElementById('placeNameLabel');
   const queueLabel = document.getElementById('queueLabel');
+  const cityLabel = document.getElementById('cityLabel');
+  const regionLabel = document.getElementById('regionLabel');
 
   const importTitleEl = document.getElementById('importTitle');
   const importQueueLabel = document.getElementById('importQueueLabel');
@@ -761,8 +763,6 @@
   }
 
   function renderLangTexts(){
-    subtitleRegionEl.textContent=t('region');
-
     langButtons.forEach(btn=>{
       btn.classList.toggle('active',btn.dataset.lang===currentLang);
     });
@@ -770,7 +770,9 @@
     locationButtons.forEach(btn=>{
       const p=btn.dataset.profile;
       const key=p==='home'?'location_home':'location_work';
-      btn.textContent=t(key);
+      const profile = profiles[p];
+      const label = (profile && profile.profileLabel) || t(key);
+      btn.textContent = label;
       btn.classList.toggle('active',p===currentProfile);
     });
 
@@ -784,8 +786,11 @@
     editNoteEl.textContent=t('edit_note');
     editTitleEl.textContent=t('edit_title');
     saveBtn.textContent=t('save_btn');
+    profileLabelLabel.childNodes[0].nodeValue=t('profile_label_label')+': ';
     placeNameLabel.childNodes[0].nodeValue=t('place_name_label')+': ';
     queueLabel.childNodes[0].nodeValue=t('queue_label')+': ';
+    cityLabel.childNodes[0].nodeValue=t('city_label')+': ';
+    regionLabel.childNodes[0].nodeValue=t('region_label')+': ';
     importTitleEl.textContent=t('import_title');
     importQueueLabel.childNodes[0].nodeValue=t('import_queue_label')+': ';
     importBtn.textContent=t('import_button');
@@ -796,7 +801,15 @@
   function renderHeader(){
     const profile=profiles[currentProfile];
     titlePlaceEl.textContent=profile.name || (currentProfile==='home'?t('place_home_default'):t('place_work_default'));
-    subtitleRegionEl.textContent=t('region');
+
+    const defaultRegion = t('region');
+    const region = globalRegion || defaultRegion;
+    let subtitle = '';
+    if (globalCity && region) subtitle = globalCity + ', ' + region;
+    else if (globalCity) subtitle = globalCity;
+    else subtitle = region;
+
+    subtitleRegionEl.textContent = subtitle;
     queueBadgeEl.textContent=t('queue_label')+' '+(profile.queueCode || '6.2');
   }
 
@@ -884,8 +897,11 @@
 
   function renderEditorFields(){
     const profile=profiles[currentProfile];
+    profileLabelInput.value = profile.profileLabel || '';
     placeNameInput.value=profile.name || '';
     queueInput.value=profile.queueCode || '6.2';
+    cityInput.value = globalCity || '';
+    regionInput.value = globalRegion || '';
     const offSlots=getDaySlots(currentProfile,currentDayKey);
     editArea.value=offSlots.map(s=>s.join('-')).join(';');
   }
@@ -974,6 +990,15 @@
     renderEditorFields();
   });
 
+  // поля настроек
+  profileLabelInput.addEventListener('change',()=>{
+    const val = profileLabelInput.value.trim();
+    if(!val)return;
+    profiles[currentProfile].profileLabel = val;
+    saveProfile(currentProfile);
+    renderAll();
+  });
+
   placeNameInput.addEventListener('change',()=>{
     const val=placeNameInput.value.trim();
     if(!val)return;
@@ -987,6 +1012,18 @@
     if(!val)return;
     profiles[currentProfile].queueCode=val;
     saveProfile(currentProfile);
+    renderHeader();
+  });
+
+  cityInput.addEventListener('change',()=>{
+    globalCity = cityInput.value.trim();
+    localStorage.setItem(CITY_KEY, globalCity);
+    renderHeader();
+  });
+
+  regionInput.addEventListener('change',()=>{
+    globalRegion = regionInput.value.trim();
+    localStorage.setItem(REGION_KEY, globalRegion);
     renderHeader();
   });
 
